@@ -5,87 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orchard | Intelligence Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         body { background: #020617; color: #f8fafc; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 50; }
-        .tab-active { border-bottom: 2px solid #10b981; color: #10b981; }
+        .full-page-view { display: none; position: fixed; inset: 0; background: #020617; z-index: 100; overflow-y: auto; }
+        .prose h1 { color: #10b981; font-weight: 900; font-size: 2.25rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { color: #94a3b8; margin-bottom: 1rem; line-height: 1.75; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; color: #94a3b8; margin-bottom: 1rem; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center font-sans selection:bg-emerald-500/30">
-    <div id="lock-screen" class="glass p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center">
-        <div class="mb-6 flex justify-center">
-            <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-500/50">
-                <span class="text-emerald-400 text-2xl font-bold">O</span>
+<body class="min-h-screen selection:bg-emerald-500/30">
+    
+    <!-- Lock Screen -->
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[200]">
+        <div class="glass p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+            <div class="mb-6 flex justify-center">
+                <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-500/50">
+                    <span class="text-emerald-400 text-2xl font-bold">O</span>
+                </div>
             </div>
+            <h1 class="text-2xl font-black mb-2 tracking-tighter text-white">ORCHARD ACCESS</h1>
+            <p class="text-slate-500 text-xs mb-8 uppercase tracking-widest">VP of Product Authorization</p>
+            <input type="password" id="pw" placeholder="••••••••" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 text-center focus:outline-none focus:border-emerald-500 transition-all text-white">
+            <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/20 text-white">Authorize</button>
         </div>
-        <h1 class="text-2xl font-black mb-2 tracking-tighter">ORCHARD ACCESS</h1>
-        <p class="text-slate-500 text-xs mb-8 uppercase tracking-widest">VP of Product Authorization</p>
-        <input type="password" id="pw" placeholder="••••••••" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 text-center focus:outline-none focus:border-emerald-500 transition-all">
-        <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/20">Authorize</button>
     </div>
 
-    <div id="dashboard" class="hidden w-full max-w-7xl p-8">
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="hidden w-full max-w-7xl mx-auto p-8 opacity-0 transition-opacity duration-500">
         <header class="flex justify-between items-center mb-12">
             <div>
                 <h1 class="text-5xl font-black tracking-tighter text-emerald-400">ORCHARD<span class="text-slate-600">.ai</span></h1>
                 <p class="text-slate-500 font-mono text-sm mt-1">Status: Blooming // Brain: Gemini 3 + Kimi 2.5</p>
             </div>
             <div class="flex gap-4">
-                <div class="glass px-5 py-2 rounded-full text-xs font-bold text-slate-400">SRV-1314365</div>
-                <button onclick="logout()" class="glass px-5 py-2 rounded-full text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition">Lock</button>
+                <button onclick="logout()" class="glass px-5 py-2 rounded-full text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition text-slate-400">Lock</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <!-- Left & Middle: Venture Gallery -->
             <div class="lg:col-span-2 space-y-8">
                 <div class="flex items-center justify-between border-b border-white/5 pb-4">
                     <h2 class="text-2xl font-bold">💎 Venture Gallery</h2>
-                    <span class="text-xs text-slate-500 uppercase tracking-widest">4 Active Briefs</span>
+                    <span class="text-xs text-slate-500 uppercase tracking-widest">Current Alpha Briefs</span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="venture-grid">
-                    <!-- Cards will be injected here -->
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="venture-grid"></div>
             </div>
 
-            <!-- Right Side: Deep Research Feed -->
             <div class="space-y-8">
                 <div class="flex items-center justify-between border-b border-white/5 pb-4">
                     <h2 class="text-2xl font-bold">⚡ Intel Feed</h2>
                     <span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold uppercase">Live</span>
                 </div>
-                <div class="space-y-4">
-                    <div class="glass p-6 rounded-2xl border-l-4 border-l-emerald-500">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kimi 2.5 Research</span>
-                        </div>
-                        <h3 class="font-bold mb-2">Trend: Multi-Agent Swarms</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Agents moving from single-tasking to autonomous orchestration in 2026 content workflows.</p>
-                    </div>
-                </div>
+                <div id="intel-feed" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
-    <div id="detail-modal" class="modal flex items-center justify-center p-8">
-        <div class="glass max-w-3xl w-full max-h-[80vh] overflow-y-auto p-12 rounded-[40px] relative shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-500 hover:text-white text-3xl transition">×</button>
-            <div class="flex items-center gap-3 mb-4">
-                <span id="modal-cat" class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded font-black uppercase tracking-widest"></span>
-            </div>
-            <h2 id="modal-title" class="text-4xl font-black mb-8 text-white tracking-tight"></h2>
-            <div id="modal-content" class="text-slate-400 leading-relaxed text-lg space-y-4 font-light"></div>
+    <!-- Full Page Report View -->
+    <div id="report-view" class="full-page-view">
+        <div class="max-w-4xl mx-auto p-12 lg:p-24">
+            <button onclick="closeReport()" class="mb-12 flex items-center gap-2 text-slate-500 hover:text-emerald-400 transition group font-bold">
+                <span class="group-hover:-translate-x-1 transition-transform">←</span> Back to Orchard
+            </button>
+            <div id="report-content" class="prose max-w-none"></div>
         </div>
     </div>
 
     <script>
-        const data = [
-            {"title": "Aura", "category": "Venture", "summary": "AI Executive Video/Voice Coaching Platform. Multimodal body language analysis."},
-            {"title": "Loomin", "category": "Automation", "summary": "Autonomous Viral Engine. Extracts hooks and vibe-codes scripts daily."},
-            {"title": "Mirror", "category": "Venture", "summary": "High-stakes Negotiation Practice. Real-time adversarial voice simulation."},
-            {"title": "Echo", "category": "Venture", "summary": "International Founder Tone Mastery. Dialect & cultural presence training."}
+        const ventures = [
+            { id: 'aura', title: "Aura", category: "Venture", summary: "AI Executive Video/Voice Coaching. Multimodal body language analysis.", content: `# Venture Architecture Report: High-Margin AI Businesses
+
+**DATE:** 2026-01-31
+**TO:** Project Lead
+**FROM:** Gemini, Venture Architect
+**SUBJECT:** 3 High-Margin Business Concepts Leveraging Gemini 3 & Autonomous Agents
+
+---
+
+### Introduction
+
+This report outlines three high-margin business concepts designed to capitalize on the convergence of advanced multimodal AI (Gemini 3), autonomous agent frameworks (e.g., OpenClaw), and premium user experiences. The focus is on two key growth areas: **Agentic Coaching** and **Automated Content Creation**. Each concept is architected for a strong revenue loop and a distinct, defensible advantage.
+
+---
+
+### Concept 1: \"Aura\" - The Agentic Communication Coach
+
+*   **The Name & Concept:** **Aura**. An elite, AI-powered communication coach for executives, sales teams, and public figures. Users upload videos of their presentations, sales pitches, or media appearances. The Aura agent, powered by Gemini 3, provides a deep, multi-layered analysis and then creates a personalized coaching curriculum.
+*   **The Revenue Loop:**
+    *   **Tiered Subscriptions (B2B/Prosumer):**
+        *   **Pro ($199/mo):** Individual access for analyzing up to 10 videos per month, with core feedback on tone, clarity, and body language.
+        *   **Team ($799/mo per 5 users):** Includes all Pro features plus team-level analytics, consistency tracking, and role-play simulations against an AI persona.
+        *   **Enterprise (Custom Pricing):** Full white-glove service, API access, and integration with corporate LMS, coached by a dedicated \"Master Aura Agent\" trained on the company's specific communication style.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Deep Video Analysis:** Goes beyond simple transcription. Gemini 3 analyzes **tone of voice (vocal dynamics), facial micro-expressions, posture, and gesture effectiveness** in real-time. It can identify moments of low confidence, incongruence between words and body language, or dips in audience engagement.
+    2.  **Hyper-Personalized Audio Drills:** After identifying a weakness (e.g., monotone delivery), the agent uses Gemini's audio creation to generate **custom vocal exercises** in a user's own voice, demonstrating the desired tonal variance.
+    3.  **Simulated High-Stakes Scenarios:** The agent can generate realistic video-based role-play scenarios, acting as a skeptical investor or a tough journalist, forcing the user to adapt their communication style in real-time.
+*   **Vibe-Code MVP Feature List:**
+    *   **Dashboard:** A minimalist, elegant dashboard with a single, prominent \"Upload Video\" button.
+    *   **Analysis View:** A side-by-side view of the user's video and a synchronized, scrolling transcript. Key moments are highlighted with color-coded annotations (e.g., blue for 'Clarity,' green for 'Confidence,' orange for 'Engagement Opportunity').
+    *   **\"Aura Score\":** A single, dynamic score (e.g., 88/100) that updates as the user improves.
+    *   **Actionable Insights:** Instead of charts, show 3-5 simple, bulleted \"Focus Points\" generated by the agent (e.g., \"You dropped eye contact during the financial projections,\" \"Amplify vocal energy when stating your call to action\").
+    *   **Audio Drill Player:** A simple media player for the personalized vocal exercises.
+
+---
+
+### Concept 2: \"Forge\" - The Agentic Short-Form Video Studio
+
+*   **The Name & Concept:** **Forge**. An automated, agent-driven studio that turns raw content (long-form videos, podcasts, articles, even just a URL) into a high-volume of \"slick,\" engaging, short-form videos for TikTok, Reels, and Shorts.
+*   **The Revenue Loop:**
+    *   **Pay-per-batch & Subscription:**
+        *   **Starter ($249/mo):** Ingest up to 5 hours of source material. The Forge agent autonomously identifies, clips, and produces 30 short-form videos per month, complete with animated captions, transitions, and suggested titles/hashtags.
+        *   **Growth ($999/mo):** Ingest up to 20 hours. Produces 120 clips. The agent learns from performance metrics (views, shares) to refine its editing style for what works.
+        *   **Brand API ($5,000+/mo):** API access for large media companies to integrate Forge into their own content workflows, generating thousands of clips automatically.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Multimodal \"Hook\" Detection:** Gemini 3 doesn't just look at keywords in the transcript. It **watches the source video for spikes in speaker energy, analyzes the audio for laughter or emotional peaks, and identifies visually interesting moments**. It finds the \"vibe\" of a potential viral clip, not just the content.
+    2.  **Generative B-Roll & Sound Design:** When a clip is just a talking head, the agent uses Gemini to **interpret the spoken content and generate relevant, stylistic B-roll footage or abstract visuals**. It can also generate custom sound effects or short musical stings to make the content more dynamic.
+    3.  **Voice Cloning for Narration:** For turning articles or text into video, the agent can use a high-quality clone of the author's voice (with permission) for narration, creating a more personal connection than a generic text-to-speech voice.
+*   **Vibe-Code MVP Feature List:**
+    *   **Input Interface:** A clean interface to paste a YouTube link, upload a file, or enter a URL.
+    *   **Style Selector:** Simple, visually-driven style choices (e.g., \"Hormozi Style Captions,\" \"Clean & Minimalist,\" \"Glitch & Tech\").
+    *   **\"The Forge\":** A visually satisfying processing screen where users see their raw content being \"forged\" into dozens of clips, which populate a gallery in real-time.
+    *   **Clip Gallery:** A grid of generated videos. Each clip is auto-titled (e.g., \"The 3 Mistakes in Marketing\") and has auto-generated hashtags. One-click \"Post to...\" buttons.
+    *   **Performance Feedback:** Simple icons on each clip in the gallery showing relative view/engagement performance, providing feedback to the agent.
+
+---
+
+### Concept 3: \"Cortex\" - The Agentic Solopreneur OS
+
+*   **The Name & Concept:** **Cortex**. A unified, agent-powered operating system for solopreneurs and creators. It combines agentic coaching with automated business operations and content creation to serve as a \"digital chief of staff.\"
+*   **The Revenue Loop:**
+    *   **All-in-One Subscription:**
+        *   **Founder ($399/mo):** A single, powerful subscription that provides one unified agent. This agent connects to the user's email, calendar, social media, and Stripe accounts. It provides a daily \"Morning Briefing,\" drafts content, analyzes business performance, and offers strategic coaching.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Conversational Video Check-ins:** Instead of a text-based dashboard, the primary interface is a daily video call with your \"Cortex Agent.\" Using Gemini's voice and video analysis, the agent can ask, *\"You sound a bit stressed today. I've cleared your afternoon to focus on deep work after noticing your Stripe sales are 15% ahead of target. Shall we reschedule your internal meetings?\"* This provides true, empathetic partnership.
+    2.  **\"Voice-to-Workflow\" Automation:** The user can simply *tell* the agent complex tasks. **Example:** \"Hey Cortex, that podcast I recorded yesterday? Find the 3 best clips, turn them into Reels with the usual captions, schedule them for this week, write a blog post summarizing the key ideas, and send an email to my newsletter list about it.\" The Cortex agent uses Gemini to understand the intent and orchestrates the entire workflow.
+    3.  **Proactive Opportunity Analysis:** The agent listens to all sales calls and customer interactions (with permission). Using Gemini's multimodal analysis, it can identify up-sell opportunities, common customer complaints, or feature requests and present them to the user as strategic \"Action Items,\" complete with drafted email responses or project plans.
+*   **Vibe-Code MVP Feature List:**
+    *   **The Briefing:** A full-screen, beautiful interface that defaults to the \"Morning Briefing\" - a 90-second, auto-generated video from the agent summarizing key metrics, today's schedule, and top priorities.
+    *   **Command Bar:** A universal command bar (like Raycast or Alfred) as the primary interaction point for tasking the agent.
+    *   **Connected Apps:** A simple, icon-based view of the services Cortex is connected to (Gmail, X, Stripe, etc.).
+    *   **Generative Dashboard:** The dashboard is a blank canvas. The user *asks* the agent for what they want to see. \"Cortex, show me my sales pipeline vs. last month.\" The agent generates and displays the relevant chart or data on the fly.
+    *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` },
+            { id: 'mirror', title: "Mirror", category: "Venture", summary: "High-stakes Negotiation Simulator. Real-time adversarial voice simulation.", content: `### **Venture Brief: AI-Powered Voice Coaching**
+
+This document outlines two high-end, AI-driven business ventures leveraging Gemini 3's advanced real-time voice analysis capabilities.
+
+---
+
+### **Venture 1: Mirror**
+
+**Project Code:** Mirror
+**Focus:** High-Stakes Negotiation Practice
+**Target Market:** C-Suite Executives, Legal Professionals, Sales Directors, M&A Teams
+**Core Technology:** Gemini 3 - Real-Time Voice & Emotion AI
+
+**1. Concept**
+
+**Mirror** is an elite AI-powered training platform designed to simulate high-stakes negotiations. Users engage in live, voice-based conversations with a dynamic AI counterpart that analyzes their vocal patterns, emotional state, and strategic language in real-time. It provides a safe environment to practice, fail, and master the art of negotiation without real-world consequences.
+
+The system acts as a \"mirror,\" reflecting the user's subconscious vocal cues and emotional tells, providing an objective, data-driven path to improvement.
+
+**2. Value Proposition**
+
+In high-stakes deals, the difference between success and failure can be millions of dollars, often decided by confidence, clarity, and composure. Mirror offers:
+
+*   **Risk-Free Practice:** Hone skills in scenarios that are too critical to \"learn on the job.\"
+*   **Objective Feedback:** Eliminates human bias by providing purely data-driven insights into vocal performance, something no human coach can offer.
+*   **Scalable Excellence:** Train entire teams on a consistent, best-in-class methodology.
+
+**3. Core Features (Powered by Gemini 3)**
+
+1.  **Dynamic AI Negotiator:**
+    *   The AI persona is not static. It adapts its tactics (e.g., from aggressive to collaborative) based on the user's vocal stress, hesitation, or confidence levels.
+    *   It can simulate various negotiation archetypes: \"The Stonewaller,\" \"The Data-Driver,\" \"The Relationship Builder.\"
+
+2.  **Real-Time Performance Dashboard:**
+    *   **Vocal Analysis:** Live tracking of pace, pitch, volume, and filler words (\`um\`, \`ah\`). Alerts the user if they are speaking too quickly or if their pitch indicates stress.
+    *   **Emotional Resonance Score:** Gemini 3 analyzes micro-tremors and tonal shifts to map the user's emotional state (e.g., Confidence, Anxiety, Frustration) throughout the session.
+    *   **Clarity Index:** Measures vocal enunciation and the use of concise language.
+
+3.  **Post-Negotiation Debrief:**
+    *   A comprehensive report card grading the user on key metrics.
+    *   Interactive timeline playback: Users can review critical moments, see what their voice data revealed, and receive specific, actionable advice from the AI.
+
+4.  **Curated Scenario Library:**
+    *   A library of industry-specific simulations, from \"Hostile Takeover Bids\" and \"IP Licensing Deals\" to \"Key Client Retention\" and \"Union Bargaining.\"
+
+---
+
+### **Venture 2: Echo**
+
+**Project Code:** Echo
+**Focus:** Dialect & Tone Mastery for International Founders
+**Target Market:** Non-native English-speaking founders, global executives, and sales leaders.
+**Core Technology:** Gemini 3 - Real-Time Phonetic & Intonation AI
+
+**1. Concept**
+
+**Echo** is a personalized voice coach that helps international founders and executives master the specific dialects and cultural tonalities of Western business, particularly for venture capital pitching. It moves beyond simple accent reduction, focusing on the nuances of rhythm, pitch, and intonation that build credibility and charisma.
+
+The goal is for users to be judged on the strength of their ideas, not the unfamiliarity of their accent.
+
+**2. Value Proposition**
+
+*   **Builds Investor Trust:** Aligns vocal delivery with the expectations of a target audience (e.g., Silicon Valley VCs), reducing subconscious bias.
+*   **Increases Founder Confidence:** Provides a clear, actionable path to mastering a difficult and often ambiguous communication skill.
+*   **Enhances Clarity & Impact:** Ensures that a visionary message is delivered with visionary tone.
+
+**3. Core Features (Powered by Gemini 3)**
+
+1.  **Phonetic & Accent Analysis:**
+    *   Real-time feedback on phoneme pronunciation, comparing the user's speech to a target accent model (e.g., General American, Received Pronunciation).
+    *   Provides precise, actionable corrections on individual sounds.
+
+2.  **Intonation & Rhythm Coaching:**
+    *   Analyzes the \"music\" of the user's speech, coaching on sentence-level stress, appropriate pausing, and pitch modulation to convey confidence.
+    *   Visualizes speech patterns against an ideal model, allowing users to see where their rhythm diverges.
+
+3.  **Charisma & Vibe Analysis:**
+    *   Gemini 3 provides a qualitative score on abstract but critical qualities like 'conviction,' 'energy,' and 'approachability' based on a holistic analysis of vocal biomarkers.
+    *   Tracks improvement in these areas over time.
+
+4.  **Contextual Role-Play:**
+    *   A library of high-stakes communication scenarios, including a \"30-Second Elevator Pitch,\" a \"Live VC Q&A,\" and an \"All-Hands Update.\" Feedback is tailored to the communication goals of each context.
+
+**4. Monetization & Go-to-Market (Echo)**
+
+*   **Model:** A hybrid B2C and B2B approach.
+    *   **B2C:** Premium subscription for individual founders.
+    *   **B2B:** Enterprise sales to Venture Capital funds and Accelerators, who offer Echo as a value-add service to their portfolio companies.` },
+            { id: 'loomin', title: "Loomin", category: "Automation", summary: "Autonomous Viral Engine. Extracts hooks and vibe-codes scripts daily.", content: "# Loomin Brief\nGenerating full report..." },
+            { id: 'echo', title: "Echo", category: "Venture", summary: "International Founder Tone Mastery. Dialect & cultural presence training.", content: "# Echo Brief\nGenerating full report..." }
         ];
 
         function checkPw() {
@@ -94,38 +247,50 @@
                 showDash();
             }
         }
+
+        function showDash() {
+            document.getElementById('lock-screen').style.display = 'none';
+            const dash = document.getElementById('dashboard');
+            dash.classList.remove('hidden');
+            setTimeout(() => dash.classList.add('opacity-100'), 10);
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const grid = document.getElementById('venture-grid');
+            grid.innerHTML = ventures.map(v => `
+                <div onclick="openReport('${v.id}')" class="glass p-8 rounded-[2rem] hover:bg-white/5 cursor-pointer transition-all border border-white/5 hover:border-emerald-500/30 group">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50 mb-4 block">${v.category}</span>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-emerald-400 transition-colors text-white">${v.title}</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">${v.summary}</p>
+                </div>
+            `).join('');
+            
+            document.getElementById('intel-feed').innerHTML = `
+                <div class="glass p-6 rounded-2xl border-l-4 border-l-emerald-500">
+                    <h3 class="font-bold mb-2">Trend: Multi-Agent Swarms</h3>
+                    <p class="text-sm text-slate-500">Autonomous orchestration in 2026 workflows.</p>
+                </div>
+            `;
+        }
+
+        function openReport(id) {
+            const venture = ventures.find(v => v.id === id);
+            document.getElementById('report-content').innerHTML = marked.parse(venture.content || '# Coming Soon');
+            document.getElementById('report-view').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReport() {
+            document.getElementById('report-view').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
         function logout() {
             localStorage.removeItem('orchard_auth');
             location.reload();
         }
-        function showDash() {
-            document.getElementById('lock-screen').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.body.classList.remove('items-center', 'justify-center');
-            renderCards();
-        }
-        function renderCards() {
-            const grid = document.getElementById('venture-grid');
-            grid.innerHTML = data.map(item => `
-                <div onclick="openModal('${item.title}', '${item.category}', '${item.summary}')" class="glass p-6 rounded-3xl hover:bg-white/5 cursor-pointer transition-all border border-white/5 hover:border-emerald-500/30 group">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50">${item.category}</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400">→</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-400 transition-colors">${item.title}</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">${item.summary}</p>
-                </div>
-            `).join('');
-        }
-        function openModal(title, cat, content) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-cat').innerText = cat;
-            document.getElementById('modal-content').innerText = content;
-            document.getElementById('detail-modal').style.display = 'flex';
-        }
-        function closeModal() {
-            document.getElementById('detail-modal').style.display = 'none';
-        }
+
         if(localStorage.getItem('orchard_auth') === 'true') showDash();
     </script>
 </body>
