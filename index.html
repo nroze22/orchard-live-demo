@@ -1,24 +1,112 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Orchard Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clawd Dashboard v1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-white p-10">
-    <h1 class="text-4xl font-bold mb-4">Orchard v1.0</h1>
-    <div class="grid grid-cols-3 gap-4">
-        <div class="p-6 bg-slate-800 rounded-xl border border-slate-700">
-            <h2 class="text-xl font-semibold">System Status</h2>
-            <p class="text-green-400">Online & Blooming</p>
-        </div>
-        <div class="p-6 bg-slate-800 rounded-xl border border-slate-700">
-            <h2 class="text-xl font-semibold">Location</h2>
-            <p>Tacoma, WA</p>
-        </div>
-        <div class="p-6 bg-slate-800 rounded-xl border border-slate-700">
-            <h2 class="text-xl font-semibold">Deployment</h2>
-            <p>GitHub -> Vercel</p>
-        </div>
+<body class="bg-gray-900 text-white font-sans">
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold tracking-wider">Dashboard v1.1</h1>
+            <p class="text-gray-400">Welcome to your updated command center.</p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Market Intelligence Section -->
+            <div class="glass p-6 col-span-1 md:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">Market Intelligence</h2>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-bold text-green-400">▲ NASDAQ: +0.8%</h3>
+                        <p class="text-sm text-gray-300">Tech stocks rally on positive inflation data. AI sector leads gains.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-red-400">▼ Crude Oil: -1.2%</h3>
+                        <p class="text-sm text-gray-300">Increased supply forecasts put downward pressure on prices.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-300">Emerging Tech Trend:</h3>
+                        <p class="text-sm text-gray-300">Decentralized physical infrastructure networks (DePIN) are gaining significant traction in venture capital circles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Feed Section -->
+            <div class="glass p-6 row-span-2">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">Activity Feed</h2>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <div class="bg-blue-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm"><span class="font-semibold">AGENT_ORCHARD</span> deployed new skill 'market-analyzer' to production.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="bg-green-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm">System health check complete. All systems nominal.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="bg-yellow-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm">High-priority task <span class="font-mono bg-gray-700 px-1 rounded">#A4B1C</span> is approaching its deadline.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="bg-blue-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm"><span class="font-semibold">USER</span> initiated a new 'wow.py' simulation.</p>
+                    </li>
+                     <li class="flex items-start">
+                        <div class="bg-red-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm">Resource alert: CPU usage at 92% on node <span class="font-mono bg-gray-700 px-1 rounded">worker-3</span>.</p>
+                    </li>
+                     <li class="flex items-start">
+                        <div class="bg-blue-500 rounded-full w-3 h-3 mt-1.5 mr-3 flex-shrink-0"></div>
+                        <p class="text-sm"><span class="font-semibold">AGENT_REPORTER</span> completed morning analysis.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- System Status -->
+            <div class="glass p-6">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">System Status</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span>Orchestration API</span>
+                        <span class="text-green-400 font-bold">Online</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Memory Core</span>
+                        <span class="text-green-400 font-bold">Nominal</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Agent Network</span>
+                        <span class="text-yellow-400 font-bold">Degraded</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Projects -->
+            <div class="glass p-6">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">Current Projects</h2>
+                <div class="space-y-3">
+                     <p class="text-sm truncate">AGENT_BROWSER_SKILL_UPGRADE</p>
+                     <p class="text-sm truncate">MORNING_REPORT_ENHANCEMENT</p>
+                     <p class="text-sm truncate">SURPRISE_USER_INITIATIVE_V2</p>
+                </div>
+            </div>
+
+        </main>
     </div>
 </body>
 </html>
+```
