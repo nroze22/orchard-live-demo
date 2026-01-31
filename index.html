@@ -8,40 +8,30 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .nav-item-active { color: #10b981; background: rgba(16, 185, 129, 0.1); border-radius: 1.5rem; }
-        .prose h1 { color: #10b981; font-weight: 800; font-size: 2.5rem; margin-bottom: 2rem; tracking: -0.05em; }
-        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
-        .prose p { color: #94a3b8; line-height: 1.8; font-size: 1.1rem; margin-bottom: 1.5rem; }
-        
-        /* Pull to Refresh Visual */
-        #ptr-indicator { height: 0; overflow: hidden; transition: height 0.2s; background: #020617; }
-        .pulling #ptr-indicator { height: 60px; }
+        .glass-dark { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .prose h1 { color: #10b981; font-weight: 800; font-size: 2rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; }
+        .prose p { color: #cbd5e1; line-height: 1.8; margin-bottom: 1.25rem; }
     </style>
 </head>
 <body class="min-h-screen selection:bg-emerald-500/30 overflow-x-hidden pb-32 lg:pb-0">
     
-    <!-- Pull to Refresh Slot -->
-    <div id="ptr-indicator" class="flex items-center justify-center text-emerald-400 font-bold text-xs uppercase tracking-widest">
-        Release to Refresh
-    </div>
-
     <!-- Lock Screen -->
-    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[300]">
-        <div class="glass p-12 rounded-[3rem] shadow-2xl w-full max-w-sm text-center mx-4 border-emerald-500/10">
-            <div class="mb-8 text-6xl drop-shadow-lg">🍏</div>
-            <h1 class="text-3xl font-black mb-1 tracking-tighter text-white">ORCHARD</h1>
-            <p class="text-slate-500 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">Intelligence OS</p>
-            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl mb-4 text-center text-white outline-none focus:border-emerald-500 transition-all font-bold">
-            <button onclick="checkPw()" class="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-500/20">UNSEAL</button>
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[500]">
+        <div class="glass p-12 rounded-[3.5rem] shadow-2xl w-full max-w-sm text-center mx-4 border-white/5">
+            <div class="mb-10 text-6xl opacity-80">🍏</div>
+            <h1 class="text-3xl font-black mb-1 tracking-tighter text-white uppercase">Sealed</h1>
+            <p class="text-slate-600 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">Encrypted Orchard Node</p>
+            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-5 bg-slate-950 border border-white/10 rounded-2xl mb-6 text-center text-white outline-none focus:border-emerald-500 transition-all font-bold tracking-widest">
+            <button id="unseal-btn" onclick="checkPw()" class="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-2xl font-black transition-all shadow-2xl shadow-emerald-500/20 active:scale-95">UNSEAL</button>
+            <p id="error-msg" class="text-red-500 text-[10px] mt-6 hidden font-black uppercase tracking-widest animate-pulse">Invalid Key // Authorization Failed</p>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
+    <!-- Main OS Interface -->
     <div id="dashboard" class="hidden opacity-0 transition-opacity duration-1000">
-        <!-- Desktop Sidebar -->
         <aside class="fixed left-0 top-0 bottom-0 w-80 glass-dark border-r border-white/5 z-50 hidden lg:flex flex-col p-10">
             <h2 class="text-emerald-400 font-extrabold text-3xl tracking-tighter mb-12 uppercase">Orchard<span class="text-slate-700 text-lg">.ai</span></h2>
             <nav class="flex-1 space-y-3">
@@ -55,47 +45,29 @@
                     <span class="text-xl">🛠️</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400">Operations</span>
                 </button>
             </nav>
-            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">Node-1314365 // Stable</div>
         </aside>
 
-        <!-- Premium Mobile Bottom Toolbar -->
-        <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm glass-dark rounded-[2.5rem] border border-white/10 z-[200] lg:hidden flex justify-between p-2 shadow-2xl">
-            <button onclick="filterCat('all')" class="flex-1 py-4 flex flex-col items-center gap-1 group">
-                <span class="text-xl opacity-60 group-hover:opacity-100">📂</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-slate-500">All</span>
-            </button>
-            <button onclick="filterCat('Venture')" class="flex-1 py-4 flex flex-col items-center gap-1 group">
-                <span class="text-xl opacity-60 group-hover:opacity-100">💎</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-slate-500">Ventures</span>
-            </button>
-            <button onclick="filterCat('Ops')" class="flex-1 py-4 flex flex-col items-center gap-1 group">
-                <span class="text-xl opacity-60 group-hover:opacity-100">🛠️</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-slate-500">Ops</span>
-            </button>
-            <button onclick="logout()" class="flex-1 py-4 flex flex-col items-center gap-1 group">
-                <span class="text-xl opacity-60 group-hover:opacity-100 text-red-500/50">🔒</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-slate-500">Lock</span>
-            </button>
+        <!-- Mobile Bottom Toolbar -->
+        <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-sm glass-dark rounded-[2.5rem] border border-white/10 z-[200] lg:hidden flex justify-between p-2 shadow-2xl">
+            <button onclick="filterCat('all')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">📂</span></button>
+            <button onclick="filterCat('Venture')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">💎</span></button>
+            <button onclick="filterCat('Ops')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">🛠️</span></button>
+            <button onclick="logout()" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">🔒</span></button>
         </nav>
 
         <main class="lg:ml-80 p-8 lg:p-20 min-h-screen">
-            <header class="mb-16">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-1 h-8 bg-emerald-500 rounded-full"></div>
-                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500/50">Alpha Control</span>
-                </div>
+            <header class="mb-20">
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tighter mb-4 text-white">Neural <span class="text-emerald-400">Hub</span>.</h1>
-                <p class="text-slate-400 text-lg lg:text-xl font-medium tracking-tight">Sync Complete. 4 harvests active.</p>
+                <p class="text-slate-400 text-lg lg:text-xl font-medium">Orchard OS is unsealed and active.</p>
             </header>
-
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="file-grid"></div>
         </main>
     </div>
 
     <!-- Deep Reader View -->
-    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[400] hidden overflow-y-auto">
-        <div class="max-w-4xl mx-auto px-8 py-16 lg:py-32">
-            <button onclick="closeReader()" class="fixed top-8 left-8 glass p-4 rounded-2xl text-emerald-400 font-black text-sm z-[410] hover:bg-white/10 transition-all">← BACK</button>
+    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[600] hidden overflow-y-auto">
+        <div class="max-w-4xl mx-auto px-8 py-20 lg:py-32">
+            <button onclick="closeReader()" class="fixed top-8 left-8 glass p-5 rounded-2xl text-emerald-400 font-black text-xs z-[610] uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all">← Back</button>
             <div id="reader-meta" class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500/30 mb-8 mt-12"></div>
             <div id="reader-content" class="prose max-w-none"></div>
         </div>
@@ -103,6 +75,203 @@
 
     <script>
         const library = [
+            { id: 'poly', title: "Polymarket Alpha", category: "Venture", date: "2026-01-31", icon: "💰", summary: "Autonomous trading strategy for prediction market arbitrage.", content: `**Disclaimer**: My knowledge cutoff prevents me from accessing real-time data from 2026. The following is a **strategic foresight analysis** based on Polymarket’s trajectory through 2024, extrapolated to likely infrastructure states in early 2026, combined with prevailing trends in DeFi AI agents.
+
+---
+
+## I. The 2026 Infrastructure Landscape
+
+By early 2026, Polymarket has likely evolved from its 2024 \"institutional beta\" phase into a mature prediction market protocol with native algorithmic trading infrastructure. Expect the following stack:
+
+### **Primary APIs & SDKs**
+
+**1. Gamma Pro API (v3+)**
+- **WebSocket Streams**: Sub-100ms order book updates via dedicated algo-tier endpoints
+- **Batch Order Placement**: Atomic multi-market bets (critical for arbitrage)
+- **Historical Tick Data**: Millisecond-resolution trade history for backtesting
+- **AI Agent Authentication**: EIP-712 signed messages for autonomous wallet delegation
+
+**2. Polymarket Agent SDK (TypeScript/Python)**
+\`\`\`python
+# Hypothetical 2026 SDK pattern
+from polymarket import AutonomousAgent, Strategy
+
+agent = AutonomousAgent(
+    wallet_config=\"env\",
+    strategy=Strategy.SENTIMENT_ARBITRAGE,
+    max_slippage=0.5,
+    rpc_cluster=\"helius_premium\"  # Dedicated low-latency RPC
+)
+\`\`\`
+
+**3. The Graph Subgraph (Enhanced)**
+- Custom entities for \`OrderFlow\`, \`LiquidationEvents\`, and \`SocialOracleData\`
+- IPFS integration for off-chain sentiment anchor storage
+
+**4. Third-Party Infrastructure**
+- **BentoBot/Arkham AI**: Specialized middleware for prediction market agents
+- **OpenRouter Integration**: Direct LLM-to-contract execution pipelines
+- **Hyperliquid-style Vaults**: Copy-trading infrastructure for AI strategies
+
+---
+
+## II. High-Level Technical Architecture
+
+### **Latency Topology (Critical for 2026)**
+
+The market structure in 2026 likely separates winners by <50ms execution windows:
+
+\`\`\`
+[Social Feed Ingestion] → [NLP Processing] → [Signal Generation] → [Execution]
+     (Twitter/X API)        (Local LLM)         (Edge Compute)    (Polygon zkEVM)
+        ↓                       ↓                     ↓                ↓
+   WebSocket              GPU Cluster          FPGA/ASIC         Direct Sequencer
+   Stream                 (Sentiment)          (Pre-trade)       Connection
+\`\`\`
+
+**Key Infrastructure Investments:**
+- **Geographic Co-location**: Servers in Ashburn, VA (proximity to Polygon validators)
+- **MEV Protection**: Flashbots-style bundles for Polymarket’s CLOB to prevent frontrunning
+- **Hybrid On/Off-Chain**: ZK-proofs for sentiment analysis verification without revealing alpha
+
+---
+
+## III. The Sentiment-Arbitrage Strategy Framework
+
+### **Core Thesis**
+By 2026, information diffusion between social platforms (X, Farcaster, Telegram) and Polymarket pricing exhibits predictable lag patterns (2-45 seconds). The bot exploits **semantic deltas**—discrepancies between natural language sentiment velocity and order book momentum.
+
+### **Strategy Components**
+
+#### **A. Signal Generation Layer**
+\`\`\`python
+class SentimentAlphaEngine:
+    def __init__(self):
+        self.llm = LocalQuantizedModel(\"mistral-7b-prediction-finetuned\")
+        self.embedding_store = ChromaDB(collection=\"polymarket_contexts\")
+    
+    def calculate_information_velocity(self, event_id: str):
+        # Measure sentiment acceleration, not just polarity
+        tweets = stream_ingestion.get_event_cluster(event_id)
+        embeddings = self.llm.encode(tweets)
+        
+        # Cosine similarity trajectory analysis
+        velocity = np.gradient(embeddings, axis=time)
+        return velocity_score
+\`\`\`
+
+**Key Metrics:**
+- **Kleinberg Burst Detection**: Identifying sudden spikes in entity mentions
+- **Vector Volatility**: Rate of change in embedding space (semantic shift detection)
+- **Influencer Weighting**: Eigenvector centrality of information sources
+
+#### **B. Market Microstructure Analysis**
+Monitor for:
+1. **Order Book Imbalance (OBI)**: Bid/ask asymmetry >15% indicates institutional positioning
+2. **Spread Compression**: Tightening spreads precede volatility expansion
+3. **Implied Probability Divergence**: Cross-reference with Kalshi, Betfair, or crypto derivatives (if available via oracle)
+
+#### **C. Execution Logic**
+\`\`\`python
+def execute_sentiment_arbitrage(signal: Signal):
+    # Three-legged arbitrage: Social → Polymarket → Hedging Venue
+    if signal.confidence > 0.85 and signal.latency < 3.0:
+        # Market buy with limit protection
+        order = polymarket_client.place_order(
+            market_id=signal.market_id,
+            side=\"BUY\" if signal.direction == \"YES\" else \"SELL\",
+            size= kelly_criterion(signal.edge, bankroll),
+            time_in_force=\"IOC\",  # Immediate or Cancel
+            post_only=False
+        )
+        
+        # Delta hedge via perpetuals (if correlation >0.7 with crypto/assets)
+        hedge.execute(offset=calculate_hedge_ratio(order))
+\`\`\`
+
+---
+
+## IV. Risk Management & Survivability
+
+### **The 2026 Risk Landscape**
+
+**1. Adversarial AI Counter-Strategies**
+By 2026, expect **poisoned sentiment attacks**—coordinated bot networks posting misleading information to trigger false signals in AI traders.
+- **Defense**: Bayesian truth serum mechanisms; cross-validation across 3+ independent LLM architectures
+- **On-chain Verification**: Use UMA or custom optimistic oracles to verify ground truth before position sizing
+
+**2. Regulatory Perimeter**
+- **CFPB/SEC Registration**: If the bot manages >$10M AUM or trades \"event contracts\" resembling securities, expect mandatory registration
+- **Geofencing**: Implement automatic IP/VPN detection to avoid violating prediction market restrictions in prohibited jurisdictions
+
+**3. Technical Fail-Safes**
+\`\`\`python
+class CircuitBreakers:
+    def __init__(self):
+        self.max_daily_drawdown = 0.05  # 5%
+        self.api_error_threshold = 3    # Consecutive failures
+        self.gas_spike_multiplier = 3   # vs 24h average
+    
+    def kill_switch(self):
+        # Automatic unwind via market orders
+        positions = self.get_all_positions()
+        for pos in positions:
+            self.emergency_close(pos)
+        self.notify_operator(priority=\"CRITICAL\")
+\`\`\`
+
+---
+
+## V. Profitability Optimization (The \"Meta-Game\")
+
+### **Alpha Decay Mitigation**
+By 2026, simple sentiment arbitrage is commoditized. Sustainable edge requires:
+
+1. **Multimodal Analysis**: Satellite imagery (for weather/agriculture markets), on-chain wallet clustering (whale wallet tracking), and audio transcription (earnings calls, debates)
+
+2. **Cross-Market Arbitrage**:
+   - Polymarket vs. Crypto perpetuals (BTC election hedges)
+   - Polymarket vs. Corporate bond CDS spreads (recession predictions)
+   - FX implied volatility vs. geopolitical event contracts
+
+3. **Market Making with Selective Flow**: Provide liquidity only when toxic flow probability is low (use inverse probability of informed trading VPIN metrics)
+
+### **Capital Efficiency**
+- **Portfolio Margin**: Use 2026-era Polymarket portfolio margining to cross-collateralize negatively correlated positions (e.g., \"Trump wins\" vs \"RFK Jr drops out\")
+- **Yield Enhancement**: Lend idle USDC in Aave while positions are open (auto-compound via smart contract wallet)
+
+---
+
+## VI. Implementation Roadmap
+
+**Phase 1 (Months 1-2)**: Infrastructure
+- Deploy local LLM inference (Llama 3 70B quantized) to avoid API latency
+- Establish dedicated Polygon zkEVM RPC connection (avoid public endpoints)
+- BuildGamma API wrappers with automatic failover
+
+**Phase 2 (Months 3-4)**: Signal Validation
+- Paper trade on historical 2024-2025 data (Gamma provides tick-level historicals)
+- Calibrate sentiment thresholds using Bayesian optimization
+- Test adversarial robustness against synthetic FUD campaigns
+
+**Phase 3 (Month 5+)**: Live Deployment
+- Start with micro-lots ($100-500) to establish MEV footprint
+- Gradually scale based on Sharpe ratio maintenance (>2.0 target)
+- Implement multi-agent swarming (3-5 bots with different strategies to diversify idiosyncratic risk)
+
+---
+
+## Critical Success Factors for 2026
+
+1. **Latency Arbitrage is Dead; Semantic Arbitrage is Alive**: Raw speed is competed away by HFT firms. The edge lies in **contextual understanding** (nuanced political dynamics, regulatory subtext) that general-purpose NLP misses.
+
+2. **Oracle Manipulation Defense**: With >$500M in open interest expected by 2026, markets become targets for oracle attacks. Verify resolution sources independently before taking large positions near expiry.
+
+3. **Regulatory Hygiene**: Maintain clear separation between \"information analysis\" and \"market manipulation.\" Never coordinate with others to move prices; the 2026 enforcement environment is likely more sophisticated than 2024.
+
+**Expected Returns**: In 2026's efficient but fragmented market, realistic targets are **15-35% annual returns** with **<10% max drawdown** for sophisticated operations, down from the 100%+ opportunities available in 2024's nascent liquidity environment.
+
+The alpha has shifted from *speed* to *synthesis*—the ability to correlate disparate data streams (satellite, social, on-chain) faster than institutional desks can convene meetings.` },
             { id: 'gloss', title: "GLOSS: Venture Pack", category: "Venture", date: "2026-01-31", icon: "✨", summary: "Deep market stats and GTM strategy for the Voice Coach.", content: `**GLOSS Venture Pack: The Anti-Coaching Coaching Platform**
 *AI-Augmented Personal Development for the Burnout Generation*
 
@@ -250,91 +419,7 @@
 ---
 
 *Pack prepared for seed-stage fundraising and Q1 2025 market entry. Data sources: HolonIQ, Grand View Research, Reddit sentiment analysis (n=12,400 posts), X trend analysis (Q3-Q4 2024).*` },
-            { id: 'audio', title: "Voice Engine Specs", category: "Ops", date: "2026-01-31", icon: "🎙️", summary: "High-fidelity Whisper v3 and Fish Speech integration.", content: `I will use the \`cat\` command with a 'here document' to write the generated deep-dive report into a new file named \`jack_voice_engine_deep_dive.md\`. This command writes multi-line text to a file.
-# Project 'Jack's Voice': A Deep-Dive on the Proposed Audio Engine
-
-## 1. Executive Summary
-
-This document outlines a detailed proposal for the architecture and technology stack of \"Jack's Voice,\" an audio engine designed to provide a seamless, natural, and responsive conversational interface for the \"Jack\" entity. Our goal is to enable fluid, human-like interaction through spoken language.
-
-The recommended stack is a combination of best-in-class, specialized models:
-
-*   **Speech-to-Text (STT):** **OpenAI Whisper v3** for its state-of-the-art transcription accuracy and robustness.
-*   **Text-to-Speech (TTS):** **Fish Speech (F5-TTS)** for its high-fidelity, rapid voice generation and cloning capabilities.
-*   **Fallback & Quota Management:** **Kimi 2.5** integrated into the core NLP layer as a strategic measure for cost and API quota management.
-
-This combination is designed to deliver a high-quality user experience while maintaining operational efficiency and cost control.
-
-## 2. Core Architecture
-
-The proposed audio engine follows a modular, pipelined architecture. This allows for independent optimization and substitution of each component.
-
-**Logical Flow:**
-
-\`\`\`
-[Audio Input] -> [STT: OpenAI Whisper v3] -> [NLP Core: Gemini / Kimi 2.5] -> [TTS: Fish Speech] -> [Audio Output]
-\`\`\`
-
-1.  **Audio Input:** A stream of audio is captured from the user's microphone.
-2.  **Speech-to-Text (STT):** The audio stream is sent to Whisper v3, which transcribes it into text with high accuracy.
-3.  **NLP Core:** The transcribed text is passed to a core Large Language Model (LLM) for understanding, reasoning, and generating a response. This is where models like Gemini (as noted in cost logs) or Kimi would operate.
-4.  **Text-to-Speech (TTS):** The text response from the NLP Core is sent to the Fish Speech model, which synthesizes it into natural-sounding speech audio.
-5.  **Audio Output:** The synthesized audio is played back to the user.
-
-## 3. Speech-to-Text (STT): OpenAI Whisper v3
-
-For the critical task of understanding the user, **OpenAI Whisper v3** is the clear choice. It is widely regarded as the industry leader in automatic speech recognition (ASR).
-
-**Key Advantages:**
-
-*   **Unmatched Accuracy:** Whisper v3 exhibits human-level robustness and accuracy in English speech transcription, significantly reducing errors in understanding user intent.
-*   **Noise Robustness:** The model is exceptionally well-trained on a diverse dataset from the internet, making it resilient to background noise, various accents, and different acoustic environments.
-*   **Multilingual Support:** Its powerful multilingual capabilities provide a clear path for future expansion and ensure the system is globally viable.
-*   **Simplicity:** As a managed API, it simplifies implementation, allowing the team to focus on the core application logic rather than the complexities of hosting and scaling an STT model.
-
-## 4. Text-to-Speech (TTS): Fish Speech / F5-TTS
-
-To give Jack a voice that is natural, expressive, and unique, we recommend **Fish Speech (F5-TTS)**. This modern, open-source model offers capabilities that rival or exceed those of proprietary systems.
-
-**Key Advantages:**
-
-*   **High-Fidelity & Natural Sound:** Fish Speech is designed to produce rich, natural-sounding speech, avoiding the robotic quality of older TTS systems. It even allows for fine-tuning emotional tone.
-*   **Extremely Fast Inference:** With a Real-Time Factor (RTF) of approximately 0.15 on consumer hardware (Nvidia RTX 4090), it is significantly faster than many state-of-the-art models. This low latency is crucial for creating a responsive, conversational feel.
-*   **Zero-Shot Voice Cloning:** The model can convincingly replicate a voice from a very short audio sample (10-30 seconds). This opens up the possibility of creating a unique, custom voice for Jack with minimal effort.
-*   **Robust & Deploy-Friendly:** It operates at the character level, avoiding reliance on phoneme conversion, which improves its ability to handle diverse text. It is designed for easy deployment with its own inference server.
-
-## 5. Quota Management & Fallback Strategy: Kimi 2.5
-
-The \"brain\" of Jack—the component that generates responses—is the most computationally and financially intensive part of the system. Our existing cost logs show reliance on Gemini models. To ensure resilience, scalability, and cost-effectiveness, we propose incorporating **Kimi 2.5** as a strategic fallback within the NLP Core.
-
-**Strategic Rationale:**
-
-*   **Cost & Quota Diversification:** Relying on a single LLM provider creates a single point of failure and budget risk. If the primary model's API experiences an outage, hits a rate limit, or becomes too expensive, the system can fail. By integrating Kimi 2.5, we can dynamically route requests based on cost, availability, and the complexity of the query.
-*   **Large Context Handling:** Kimi is renowned for its extremely large context window. For conversational turns that require recalling information from a long history, Kimi can be a more efficient and powerful option than models with smaller context limits.
-*   **Efficient Fallback:** Kimi can be configured as a secondary or tertiary option in a \"cascade\" or \"waterfall\" routing system. If a request to the primary model fails, the system can automatically retry the request with Kimi, ensuring service continuity.
-
-This is not about replacing the TTS/STT components, but about building intelligence and resilience into the central text-generation layer that connects them.
-
-## 6. Implementation & Next Steps
-
-We recommend a phased approach, starting with a proof-of-concept (PoC) to validate the architecture and user experience.
-
-1.  **Phase 1: STT & TTS Integration:**
-    *   Develop a client to capture audio and send it to the OpenAI Whisper v3 API.
-    *   Set up a Fish Speech/F5-TTS inference server and create an API endpoint for it.
-    .
-2.  **Phase 2: End-to-End Prototype:**
-    *   Create a basic NLP Core that passes the text from Whisper to the Fish Speech server.
-    *   Measure the end-to-end latency (\"glass-to-glass\" time) from user speech to system response.
-    *   Evaluate the subjective quality of the voice and transcription.
-
-3.  **Phase 3: NLP Core with Fallback:**
-    *   Implement the smart routing logic to include Kimi 2.5 as a fallback for the primary LLM.
-    *   Begin testing with a custom-cloned voice for Jack.
-
-## 7. Conclusion
-
-By combining the best-in-class accuracy of **Whisper v3**, the rapid, high-fidelity voice synthesis of **Fish Speech**, and the strategic cost-management benefits of a **Kimi 2.5** fallback, we can build a voice interface for Jack that is not only technically impressive but also robust, scalable, and economically viable.` },
+            { id: 'audio', title: "Voice Engine Specs", category: "Ops", date: "2026-01-31", icon: "🎙️", summary: "High-fidelity Whisper v3 and Fish Speech integration.", content: `` },
             { id: 'aura', title: "Aura: Exec Coach", category: "Venture", date: "2026-01-31", icon: "💎", summary: "Gemini 3 powered body language and vocal coaching.", content: `# Venture Architecture Report: High-Margin AI Businesses
 
 **DATE:** 2026-01-31
@@ -407,31 +492,17 @@ This report outlines three high-margin business concepts designed to capitalize 
     *   **Command Bar:** A universal command bar (like Raycast or Alfred) as the primary interaction point for tasking the agent.
     *   **Connected Apps:** A simple, icon-based view of the services Cortex is connected to (Gmail, X, Stripe, etc.).
     *   **Generative Dashboard:** The dashboard is a blank canvas. The user *asks* the agent for what they want to see. \"Cortex, show me my sales pipeline vs. last month.\" The agent generates and displays the relevant chart or data on the fly.
-    *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` },
-            { id: 'pulse', title: "Pulse: Agentic CRM", category: "Venture", date: "2026-01-31", icon: "📈", summary: "Proactive relationship mining for solo founders.", content: `**Title:** LexiMind
-
-**Category:** Agentic AI for Legal Services
-
-**Why now:** As of early 2026, AI has evolved from passive tools to sophisticated, autonomous \"agentic\" systems capable of complex reasoning. This new capability aligns perfectly with a critical, underserved need in the legal sector: managing the overwhelming data volumes in corporate litigation and due diligence. While basic e-discovery tools exist, the market lacks an AI that can autonomously perform high-value legal research, analyze case law, and synthesize findings with minimal human oversight. With the US patent office showing favorability towards AI patents, now is the opportune moment to build a defensible, first-mover product in this high-margin professional services niche.
-
-**Revenue Model:** A tiered SaaS subscription based on the volume of documents processed and the number of AI agent \"seats\" licensed to a law firm. Premium tiers will offer agents specialized in specific, high-value legal domains like patent litigation or M&A.` }
+    *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` }
         ];
 
-        // Pull to Refresh Logic
-        let touchStart = 0;
-        document.addEventListener('touchstart', e => { touchStart = e.touches[0].pageY; });
-        document.addEventListener('touchmove', e => {
-            const touch = e.touches[0].pageY;
-            if (touch > touchStart && window.scrollY === 0) {
-                document.body.classList.add('pulling');
-                if (touch - touchStart > 80) location.reload();
-            }
-        }, {passive: true});
-
         function checkPw() {
-            if(document.getElementById('pw').value === 'orchard2026') {
+            const input = document.getElementById('pw').value.trim();
+            if(input === 'orchard2026') {
                 localStorage.setItem('orchard_auth', 'true');
                 showDash();
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+                setTimeout(() => document.getElementById('error-msg').classList.add('hidden'), 2000);
             }
         }
         function showDash() {
@@ -445,12 +516,10 @@ This report outlines three high-margin business concepts designed to capitalize 
             const grid = document.getElementById('file-grid');
             grid.innerHTML = files.map(file => `
                 <div onclick="openReader('${file.id}')" class="glass p-8 rounded-[3rem] hover:bg-white/5 cursor-pointer border border-white/5 hover:border-emerald-500/30 group transition-all">
-                    <div class="text-4xl mb-6 drop-shadow-md">${file.icon}</div>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50">${file.category}</span>
-                    </div>
+                    <div class="text-4xl mb-6">${file.icon}</div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50 mb-2 block">${file.category}</span>
                     <h3 class="text-2xl font-black mb-3 text-white group-hover:text-emerald-400 transition-colors">${file.title}</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed font-medium">${file.summary}</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">${file.summary}</p>
                 </div>
             `).join('');
         }
