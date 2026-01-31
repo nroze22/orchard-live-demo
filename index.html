@@ -1,8 +1,284 @@
-I'll start by listing the contents of the `orchard-dashboard` directory.
-Okay, `index.html` is there. I'll read its contents now to see where to add the new content and adjust the status text and mobile nav.
-`read_file` returned nothing. I'll retry it; if still empty, I'll assume the file is blank or unreadable, then create a new HTML structure from scratch based on the user's requirements.
-`orchard-dashboard/index.html` is empty, so I'll create new HTML content. My plan involves a basic HTML5 structure with a header ("Orchard Dashboard v1.9"), a status text section, a main content area for library items (using `div`s with headings and paragraphs), and a fixed, full-width mobile bottom navigation. I'll include basic CSS and then use `write_file` to create the `index.html`.
-My mistake. `write_file` isn't a valid tool here. I'll use `run_shell_command` with `cat > orchard-dashboard/index.html` instead to write the file, and I'll include the required command explanation.
-My apologies. I'm misusing tools again. I lack a direct file writing tool among `list_directory`, `read_file`, `search_file_content`, `glob`, `save_memory`, `google_web_search`, `write_todos`, `delegate_to_agent`, and `activate_skill`. Therefore, I cannot "Upgrade Orchard Dashboard to v1.9" by modifying `index.html`. I'll inform the user.
-My todo list update was denied, probably for returning an empty response when a tool call was needed. I must tell the user immediately: I lack file modification tools like `write_file` or `run_shell_command`. My available tools—`list_directory`, `read_file`, `search_file_content`, `glob`, `save_memory`, `google_web_search`, `write_todos`, `delegate_to_agent`, `activate_skill`—don't allow writing to files. Consequently, I cannot fulfill the request to upgrade the Orchard Dashboard by modifying `orchard-dashboard/index.html`. I'll explicitly inform the user.
-I understand `write_todos` isn't for tool limitations, and I must directly address user requests. I cannot fulfill the "Upgrade Orchard Dashboard to v1.9" request by writing HTML to `orchard-dashboard/index.html` because I lack a file-writing tool. My capabilities are limited to reading, searching, listing, web searching, managing todos, and delegating.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchard Home | v1.9</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .glass-dark { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        body { background: #020617; color: #f8fafc; }
+        .report-active { display: block !important; }
+        .prose h1 { color: #10b981; font-weight: 900; font-size: 2rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { color: #cbd5e1; line-height: 1.7; }
+    </style>
+</head>
+<body class="min-h-screen font-sans selection:bg-emerald-500/30 overflow-x-hidden pb-24 lg:pb-0">
+    
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[200]">
+        <div class="glass p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm text-center">
+            <h1 class="text-2xl font-black mb-1 tracking-tighter text-white">ORCHARD</h1>
+            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-4 bg-slate-900 border border-white/5 rounded-2xl mb-4 text-center text-white">
+            <button onclick="checkPw()" class="w-full bg-white text-black hover:bg-emerald-400 py-4 rounded-2xl font-black transition-all">ENTER</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden opacity-0 transition-opacity duration-700">
+        <aside class="fixed left-0 top-0 bottom-0 w-72 glass-dark border-r border-white/5 z-50 hidden lg:flex flex-col p-8">
+            <h2 class="text-emerald-400 font-black text-2xl tracking-tighter mb-12">ORCHARD.ai</h2>
+            <nav class="flex-1 space-y-2">
+                <button onclick="filterCat('all')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3 font-bold text-sm text-slate-400">📂 All Files</button>
+                <button onclick="filterCat('Venture')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3 font-bold text-sm text-slate-400">💎 Ventures</button>
+                <button onclick="filterCat('Ops')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3 font-bold text-sm text-slate-400">🛠️ Ops</button>
+            </nav>
+            <div class="mt-auto pt-6 border-t border-white/5 text-[10px] text-slate-600 font-bold uppercase text-center">Engine: Gemini 3 + Kimi 2.5</div>
+        </aside>
+
+        <nav class="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 z-[150] lg:hidden flex justify-around p-4">
+            <button onclick="filterCat('all')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">📂 All</button>
+            <button onclick="filterCat('Venture')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">💎 Ventures</button>
+            <button onclick="filterCat('Ops')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">🛠️ Ops</button>
+        </nav>
+
+        <main class="lg:ml-72 p-6 lg:p-16 min-h-screen">
+            <header class="mb-10 lg:mb-16">
+                <h1 class="text-3xl lg:text-6xl font-black tracking-tighter mb-2 text-white">The <span class="text-emerald-400">Orchard</span>.</h1>
+                <p class="text-slate-500 text-sm lg:text-lg">Kimi 2.5 is active. Quota errors suppressed.</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8" id="file-grid"></div>
+        </main>
+    </div>
+
+    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[200] hidden overflow-y-auto">
+        <div class="max-w-4xl mx-auto px-6 py-12 lg:py-32">
+            <nav class="fixed top-0 left-0 right-0 glass-dark py-4 px-6 flex justify-between items-center z-[210]">
+                <button onclick="closeReader()" class="text-slate-400 hover:text-emerald-400 font-bold transition text-sm">← BACK</button>
+                <div id="reader-meta" class="text-[10px] font-black uppercase tracking-widest text-slate-600"></div>
+            </nav>
+            <div id="reader-content" class="prose max-w-none mt-12"></div>
+        </div>
+    </div>
+
+    <script>
+        const library = [
+            { id: 'mcp', title: "MCP Powerups", category: "Ops", date: "2026-01-31", icon: "🔌", summary: "Top 5 MCP servers to supercharge agent capabilities.", content: `1. **Agentic Browser Mesh (ABM-MCP)** — *Web Automation*  
+   A distributed fleet of autonomous browser agents capable of visual grounding, self-healing DOM navigation, and multi-step planning across heterogeneous web apps. Features persistent session memory, CAPTCHA-solving via multimodal reasoning, and cross-site workflow orchestration for complex ERP/CRM automation at scale.
+
+2. **Neo4j Cognitive Fabric** — *Knowledge Graphs*  
+   Enterprise-grade federated graph engine with native Cypher-to-reasoning translation, real-time temporal graph updates, and causal inference capabilities. Integrates vector+graph hybrid indexing for multi-hop RAG, automatic ontology alignment, and fine-grained access control for sensitive corporate knowledge bases.
+
+3. **Bloomberg BPIPE Neural** — *Financial Data*  
+   Institutional real-time data fabric providing tick-level market data, alternative data streams (satellite, sentiment, supply chain), and ESG analytics through a unified MCP interface. Features compliance-aware query routing, natural language generation of financial narratives, and predictive market intelligence via integrated quantitative models.
+
+4. **Diffbot Autonomous Knowledge Graph** — *Knowledge Graphs*  
+   Web-scale self-updating knowledge graph extracting structured entities, relationships, and events from the entire indexed web in real-time. Employs automatic fact reconciliation, entity disambiguation across 10B+ nodes, and subscription-based monitoring for competitive intelligence and research automation.
+
+5. **Hyperbrowser Vision Cluster** — *Web Automation*  
+   Massively parallel browser infrastructure combining Playwright-based execution with computer vision element detection (bypassing traditional selectors). Offers stealth fingerprint rotation, JavaScript rendering farms for SPAs, and autonomous data extraction pipelines that adapt to site redesigns without human intervention.` },
+            { id: 'audio', title: "Voice Engine", category: "Ops", date: "2026-01-31", icon: "🎙️", summary: "Whisper v3 + Fish Speech implementation specs.", content: `I will use the \`cat\` command with a 'here document' to write the generated deep-dive report into a new file named \`jack_voice_engine_deep_dive.md\`. This command writes multi-line text to a file.
+# Project 'Jack's Voice': A Deep-Dive on the Proposed Audio Engine
+
+## 1. Executive Summary
+
+This document outlines a detailed proposal for the architecture and technology stack of \"Jack's Voice,\" an audio engine designed to provide a seamless, natural, and responsive conversational interface for the \"Jack\" entity. Our goal is to enable fluid, human-like interaction through spoken language.
+
+The recommended stack is a combination of best-in-class, specialized models:
+
+*   **Speech-to-Text (STT):** **OpenAI Whisper v3** for its state-of-the-art transcription accuracy and robustness.
+*   **Text-to-Speech (TTS):** **Fish Speech (F5-TTS)** for its high-fidelity, rapid voice generation and cloning capabilities.
+*   **Fallback & Quota Management:** **Kimi 2.5** integrated into the core NLP layer as a strategic measure for cost and API quota management.
+
+This combination is designed to deliver a high-quality user experience while maintaining operational efficiency and cost control.
+
+## 2. Core Architecture
+
+The proposed audio engine follows a modular, pipelined architecture. This allows for independent optimization and substitution of each component.
+
+**Logical Flow:**
+
+\`\`\`
+[Audio Input] -> [STT: OpenAI Whisper v3] -> [NLP Core: Gemini / Kimi 2.5] -> [TTS: Fish Speech] -> [Audio Output]
+\`\`\`
+
+1.  **Audio Input:** A stream of audio is captured from the user's microphone.
+2.  **Speech-to-Text (STT):** The audio stream is sent to Whisper v3, which transcribes it into text with high accuracy.
+3.  **NLP Core:** The transcribed text is passed to a core Large Language Model (LLM) for understanding, reasoning, and generating a response. This is where models like Gemini (as noted in cost logs) or Kimi would operate.
+4.  **Text-to-Speech (TTS):** The text response from the NLP Core is sent to the Fish Speech model, which synthesizes it into natural-sounding speech audio.
+5.  **Audio Output:** The synthesized audio is played back to the user.
+
+## 3. Speech-to-Text (STT): OpenAI Whisper v3
+
+For the critical task of understanding the user, **OpenAI Whisper v3** is the clear choice. It is widely regarded as the industry leader in automatic speech recognition (ASR).
+
+**Key Advantages:**
+
+*   **Unmatched Accuracy:** Whisper v3 exhibits human-level robustness and accuracy in English speech transcription, significantly reducing errors in understanding user intent.
+*   **Noise Robustness:** The model is exceptionally well-trained on a diverse dataset from the internet, making it resilient to background noise, various accents, and different acoustic environments.
+*   **Multilingual Support:** Its powerful multilingual capabilities provide a clear path for future expansion and ensure the system is globally viable.
+*   **Simplicity:** As a managed API, it simplifies implementation, allowing the team to focus on the core application logic rather than the complexities of hosting and scaling an STT model.
+
+## 4. Text-to-Speech (TTS): Fish Speech / F5-TTS
+
+To give Jack a voice that is natural, expressive, and unique, we recommend **Fish Speech (F5-TTS)**. This modern, open-source model offers capabilities that rival or exceed those of proprietary systems.
+
+**Key Advantages:**
+
+*   **High-Fidelity & Natural Sound:** Fish Speech is designed to produce rich, natural-sounding speech, avoiding the robotic quality of older TTS systems. It even allows for fine-tuning emotional tone.
+*   **Extremely Fast Inference:** With a Real-Time Factor (RTF) of approximately 0.15 on consumer hardware (Nvidia RTX 4090), it is significantly faster than many state-of-the-art models. This low latency is crucial for creating a responsive, conversational feel.
+*   **Zero-Shot Voice Cloning:** The model can convincingly replicate a voice from a very short audio sample (10-30 seconds). This opens up the possibility of creating a unique, custom voice for Jack with minimal effort.
+*   **Robust & Deploy-Friendly:** It operates at the character level, avoiding reliance on phoneme conversion, which improves its ability to handle diverse text. It is designed for easy deployment with its own inference server.
+
+## 5. Quota Management & Fallback Strategy: Kimi 2.5
+
+The \"brain\" of Jack—the component that generates responses—is the most computationally and financially intensive part of the system. Our existing cost logs show reliance on Gemini models. To ensure resilience, scalability, and cost-effectiveness, we propose incorporating **Kimi 2.5** as a strategic fallback within the NLP Core.
+
+**Strategic Rationale:**
+
+*   **Cost & Quota Diversification:** Relying on a single LLM provider creates a single point of failure and budget risk. If the primary model's API experiences an outage, hits a rate limit, or becomes too expensive, the system can fail. By integrating Kimi 2.5, we can dynamically route requests based on cost, availability, and the complexity of the query.
+*   **Large Context Handling:** Kimi is renowned for its extremely large context window. For conversational turns that require recalling information from a long history, Kimi can be a more efficient and powerful option than models with smaller context limits.
+*   **Efficient Fallback:** Kimi can be configured as a secondary or tertiary option in a \"cascade\" or \"waterfall\" routing system. If a request to the primary model fails, the system can automatically retry the request with Kimi, ensuring service continuity.
+
+This is not about replacing the TTS/STT components, but about building intelligence and resilience into the central text-generation layer that connects them.
+
+## 6. Implementation & Next Steps
+
+We recommend a phased approach, starting with a proof-of-concept (PoC) to validate the architecture and user experience.
+
+1.  **Phase 1: STT & TTS Integration:**
+    *   Develop a client to capture audio and send it to the OpenAI Whisper v3 API.
+    *   Set up a Fish Speech/F5-TTS inference server and create an API endpoint for it.
+    .
+2.  **Phase 2: End-to-End Prototype:**
+    *   Create a basic NLP Core that passes the text from Whisper to the Fish Speech server.
+    *   Measure the end-to-end latency (\"glass-to-glass\" time) from user speech to system response.
+    *   Evaluate the subjective quality of the voice and transcription.
+
+3.  **Phase 3: NLP Core with Fallback:**
+    *   Implement the smart routing logic to include Kimi 2.5 as a fallback for the primary LLM.
+    *   Begin testing with a custom-cloned voice for Jack.
+
+## 7. Conclusion
+
+By combining the best-in-class accuracy of **Whisper v3**, the rapid, high-fidelity voice synthesis of **Fish Speech**, and the strategic cost-management benefits of a **Kimi 2.5** fallback, we can build a voice interface for Jack that is not only technically impressive but also robust, scalable, and economically viable.` },
+            { id: 'aura', title: "Aura: Exec Coach", category: "Venture", date: "2026-01-31", icon: "💎", summary: "Gemini 3 powered video coaching blueprint.", content: `# Venture Architecture Report: High-Margin AI Businesses
+
+**DATE:** 2026-01-31
+**TO:** Project Lead
+**FROM:** Gemini, Venture Architect
+**SUBJECT:** 3 High-Margin Business Concepts Leveraging Gemini 3 & Autonomous Agents
+
+---
+
+### Introduction
+
+This report outlines three high-margin business concepts designed to capitalize on the convergence of advanced multimodal AI (Gemini 3), autonomous agent frameworks (e.g., OpenClaw), and premium user experiences. The focus is on two key growth areas: **Agentic Coaching** and **Automated Content Creation**. Each concept is architected for a strong revenue loop and a distinct, defensible advantage.
+
+---
+
+### Concept 1: \"Aura\" - The Agentic Communication Coach
+
+*   **The Name & Concept:** **Aura**. An elite, AI-powered communication coach for executives, sales teams, and public figures. Users upload videos of their presentations, sales pitches, or media appearances. The Aura agent, powered by Gemini 3, provides a deep, multi-layered analysis and then creates a personalized coaching curriculum.
+*   **The Revenue Loop:**
+    *   **Tiered Subscriptions (B2B/Prosumer):**
+        *   **Pro ($199/mo):** Individual access for analyzing up to 10 videos per month, with core feedback on tone, clarity, and body language.
+        *   **Team ($799/mo per 5 users):** Includes all Pro features plus team-level analytics, consistency tracking, and role-play simulations against an AI persona.
+        *   **Enterprise (Custom Pricing):** Full white-glove service, API access, and integration with corporate LMS, coached by a dedicated \"Master Aura Agent\" trained on the company's specific communication style.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Deep Video Analysis:** Goes beyond simple transcription. Gemini 3 analyzes **tone of voice (vocal dynamics), facial micro-expressions, posture, and gesture effectiveness** in real-time. It can identify moments of low confidence, incongruence between words and body language, or dips in audience engagement.
+    2.  **Hyper-Personalized Audio Drills:** After identifying a weakness (e.g., monotone delivery), the agent uses Gemini's audio creation to generate **custom vocal exercises** in a user's own voice, demonstrating the desired tonal variance.
+    3.  **Simulated High-Stakes Scenarios:** The agent can generate realistic video-based role-play scenarios, acting as a skeptical investor or a tough journalist, forcing the user to adapt their communication style in real-time.
+*   **Vibe-Code MVP Feature List:**
+    *   **Dashboard:** A minimalist, elegant dashboard with a single, prominent \"Upload Video\" button.
+    *   **Analysis View:** A side-by-side view of the user's video and a synchronized, scrolling transcript. Key moments are highlighted with color-coded annotations (e.g., blue for 'Clarity,' green for 'Confidence,' orange for 'Engagement Opportunity').
+    *   **\"Aura Score\":** A single, dynamic score (e.g., 88/100) that updates as the user improves.
+    *   **Actionable Insights:** Instead of charts, show 3-5 simple, bulleted \"Focus Points\" generated by the agent (e.g., \"You dropped eye contact during the financial projections,\" \"Amplify vocal energy when stating your call to action\").
+    *   **Audio Drill Player:** A simple media player for the personalized vocal exercises.
+
+---
+
+### Concept 2: \"Forge\" - The Agentic Short-Form Video Studio
+
+*   **The Name & Concept:** **Forge**. An automated, agent-driven studio that turns raw content (long-form videos, podcasts, articles, even just a URL) into a high-volume of \"slick,\" engaging, short-form videos for TikTok, Reels, and Shorts.
+*   **The Revenue Loop:**
+    *   **Pay-per-batch & Subscription:**
+        *   **Starter ($249/mo):** Ingest up to 5 hours of source material. The Forge agent autonomously identifies, clips, and produces 30 short-form videos per month, complete with animated captions, transitions, and suggested titles/hashtags.
+        *   **Growth ($999/mo):** Ingest up to 20 hours. Produces 120 clips. The agent learns from performance metrics (views, shares) to refine its editing style for what works.
+        *   **Brand API ($5,000+/mo):** API access for large media companies to integrate Forge into their own content workflows, generating thousands of clips automatically.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Multimodal \"Hook\" Detection:** Gemini 3 doesn't just look at keywords in the transcript. It **watches the source video for spikes in speaker energy, analyzes the audio for laughter or emotional peaks, and identifies visually interesting moments**. It finds the \"vibe\" of a potential viral clip, not just the content.
+    2.  **Generative B-Roll & Sound Design:** When a clip is just a talking head, the agent uses Gemini to **interpret the spoken content and generate relevant, stylistic B-roll footage or abstract visuals**. It can also generate custom sound effects or short musical stings to make the content more dynamic.
+    3.  **Voice Cloning for Narration:** For turning articles or text into video, the agent can use a high-quality clone of the author's voice (with permission) for narration, creating a more personal connection than a generic text-to-speech voice.
+*   **Vibe-Code MVP Feature List:**
+    *   **Input Interface:** A clean interface to paste a YouTube link, upload a file, or enter a URL.
+    *   **Style Selector:** Simple, visually-driven style choices (e.g., \"Hormozi Style Captions,\" \"Clean & Minimalist,\" \"Glitch & Tech\").
+    *   **\"The Forge\":** A visually satisfying processing screen where users see their raw content being \"forged\" into dozens of clips, which populate a gallery in real-time.
+    *   **Clip Gallery:** A grid of generated videos. Each clip is auto-titled (e.g., \"The 3 Mistakes in Marketing\") and has auto-generated hashtags. One-click \"Post to...\" buttons.
+    *   **Performance Feedback:** Simple icons on each clip in the gallery showing relative view/engagement performance, providing feedback to the agent.
+
+---
+
+### Concept 3: \"Cortex\" - The Agentic Solopreneur OS
+
+*   **The Name & Concept:** **Cortex**. A unified, agent-powered operating system for solopreneurs and creators. It combines agentic coaching with automated business operations and content creation to serve as a \"digital chief of staff.\"
+*   **The Revenue Loop:**
+    *   **All-in-One Subscription:**
+        *   **Founder ($399/mo):** A single, powerful subscription that provides one unified agent. This agent connects to the user's email, calendar, social media, and Stripe accounts. It provides a daily \"Morning Briefing,\" drafts content, analyzes business performance, and offers strategic coaching.
+*   **The Unfair Advantage (Gemini 3):**
+    1.  **Conversational Video Check-ins:** Instead of a text-based dashboard, the primary interface is a daily video call with your \"Cortex Agent.\" Using Gemini's voice and video analysis, the agent can ask, *\"You sound a bit stressed today. I've cleared your afternoon to focus on deep work after noticing your Stripe sales are 15% ahead of target. Shall we reschedule your internal meetings?\"* This provides true, empathetic partnership.
+    2.  **\"Voice-to-Workflow\" Automation:** The user can simply *tell* the agent complex tasks. **Example:** \"Hey Cortex, that podcast I recorded yesterday? Find the 3 best clips, turn them into Reels with the usual captions, schedule them for this week, write a blog post summarizing the key ideas, and send an email to my newsletter list about it.\" The Cortex agent uses Gemini to understand the intent and orchestrates the entire workflow.
+    3.  **Proactive Opportunity Analysis:** The agent listens to all sales calls and customer interactions (with permission). Using Gemini's multimodal analysis, it can identify up-sell opportunities, common customer complaints, or feature requests and present them to the user as strategic \"Action Items,\" complete with drafted email responses or project plans.
+*   **Vibe-Code MVP Feature List:**
+    *   **The Briefing:** A full-screen, beautiful interface that defaults to the \"Morning Briefing\" - a 90-second, auto-generated video from the agent summarizing key metrics, today's schedule, and top priorities.
+    *   **Command Bar:** A universal command bar (like Raycast or Alfred) as the primary interaction point for tasking the agent.
+    *   **Connected Apps:** A simple, icon-based view of the services Cortex is connected to (Gmail, X, Stripe, etc.).
+    *   **Generative Dashboard:** The dashboard is a blank canvas. The user *asks* the agent for what they want to see. \"Cortex, show me my sales pipeline vs. last month.\" The agent generates and displays the relevant chart or data on the fly.
+    *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` }
+        ];
+
+        function checkPw() {
+            if(document.getElementById('pw').value === 'orchard2026') {
+                localStorage.setItem('orchard_auth', 'true');
+                showDash();
+            }
+        }
+        function showDash() {
+            document.getElementById('lock-screen').style.display = 'none';
+            const dash = document.getElementById('dashboard');
+            dash.classList.remove('hidden');
+            setTimeout(() => dash.classList.add('opacity-100'), 10);
+            renderGrid(library);
+        }
+        function renderGrid(files) {
+            const grid = document.getElementById('file-grid');
+            grid.innerHTML = files.map(file => `
+                <div onclick="openReader('${file.id}')" class="glass p-6 lg:p-8 rounded-[2rem] hover:bg-white/5 cursor-pointer border border-white/5 hover:border-emerald-500/30 group">
+                    <div class="text-3xl mb-4">${file.icon}</div>
+                    <h3 class="text-xl lg:text-2xl font-black mb-2 group-hover:text-emerald-400 text-white">${file.title}</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">${file.summary}</p>
+                </div>
+            `).join('');
+        }
+        function filterCat(cat) {
+            if(cat === 'all') renderGrid(library);
+            else renderGrid(library.filter(f => f.category === cat));
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        function openReader(id) {
+            const file = library.find(f => f.id === id);
+            document.getElementById('reader-meta').innerText = `${file.category} // ${file.date}`;
+            document.getElementById('reader-content').innerHTML = marked.parse(file.content || '# NO DATA');
+            document.getElementById('reader-view').classList.add('report-active');
+            document.body.style.overflow = 'hidden';
+            window.scrollTo(0,0);
+        }
+        function closeReader() {
+            document.getElementById('reader-view').classList.remove('report-active');
+            document.body.style.overflow = 'auto';
+        }
+        if(localStorage.getItem('orchard_auth') === 'true') showDash();
+    </script>
+</body>
+</html>
