@@ -6,65 +6,120 @@
     <title>Orchard | Intelligence Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        body { background: #0f172a; color: white; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 50; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { background: #020617; color: #f8fafc; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 50; }
+        .tab-active { border-bottom: 2px solid #10b981; color: #10b981; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center font-sans">
-    <div id="lock-screen" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-        <h1 class="text-3xl font-bold mb-6 text-emerald-400">Orchard v1.3</h1>
-        <input type="password" id="pw" placeholder="Enter Access Key" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg mb-4 text-center">
-        <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold">Unlock</button>
+<body class="min-h-screen flex items-center justify-center font-sans selection:bg-emerald-500/30">
+    <div id="lock-screen" class="glass p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+        <div class="mb-6 flex justify-center">
+            <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-500/50">
+                <span class="text-emerald-400 text-2xl font-bold">O</span>
+            </div>
+        </div>
+        <h1 class="text-2xl font-black mb-2 tracking-tighter">ORCHARD ACCESS</h1>
+        <p class="text-slate-500 text-xs mb-8 uppercase tracking-widest">VP of Product Authorization</p>
+        <input type="password" id="pw" placeholder="••••••••" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 text-center focus:outline-none focus:border-emerald-500 transition-all">
+        <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/20">Authorize</button>
     </div>
 
-    <div id="dashboard" class="hidden w-full max-w-6xl p-6">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-4xl font-black text-emerald-400">ORCHARD.AI</h1>
-            <div class="glass px-4 py-2 rounded-full text-sm font-mono tracking-widest">PRODUCT PORTAL</div>
-        </div>
+    <div id="dashboard" class="hidden w-full max-w-7xl p-8">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-5xl font-black tracking-tighter text-emerald-400">ORCHARD<span class="text-slate-600">.ai</span></h1>
+                <p class="text-slate-500 font-mono text-sm mt-1">Status: Blooming // Brain: Gemini 3 + Kimi 2.5</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="glass px-5 py-2 rounded-full text-xs font-bold text-slate-400">SRV-1314365</div>
+                <button onclick="logout()" class="glass px-5 py-2 rounded-full text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition">Lock</button>
+            </div>
+        </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <section class="glass p-8 rounded-3xl">
-                <h2 class="text-2xl font-bold mb-6 text-emerald-400">💎 Venture Gallery</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Left & Middle: Venture Gallery -->
+            <div class="lg:col-span-2 space-y-8">
+                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                    <h2 class="text-2xl font-bold">💎 Venture Gallery</h2>
+                    <span class="text-xs text-slate-500 uppercase tracking-widest">4 Active Briefs</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="venture-grid">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- Right Side: Deep Research Feed -->
+            <div class="space-y-8">
+                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                    <h2 class="text-2xl font-bold">⚡ Intel Feed</h2>
+                    <span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold uppercase">Live</span>
+                </div>
                 <div class="space-y-4">
-                    <div onclick="openModal('Aura', 'AI Executive Coaching Platform', 'Analyzing video body language + vocal tone using Gemini 3; generating personalized voice-correction drills. Revenue: Tiered B2B Subscriptions.')" class="p-4 bg-slate-800/50 hover:bg-emerald-900/20 rounded-xl border border-white/5 cursor-pointer transition">
-                        <h3 class="font-bold text-emerald-300">Aura</h3>
-                        <p class="text-sm text-slate-400">Executive Video/Voice Coaching Platform</p>
-                    </div>
-                    <div onclick="openModal('Loomin', 'Autonomous Viral Engine', 'Watches trending videos, extracts hook structures, and vibe-codes new scripts. Revenue: Content Creator SaaS.')" class="p-4 bg-slate-800/50 hover:bg-emerald-900/20 rounded-xl border border-white/5 cursor-pointer transition">
-                        <h3 class="font-bold text-emerald-300">Loomin</h3>
-                        <p class="text-sm text-slate-400">Autonomous Viral Content Engine</p>
+                    <div class="glass p-6 rounded-2xl border-l-4 border-l-emerald-500">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kimi 2.5 Research</span>
+                        </div>
+                        <h3 class="font-bold mb-2">Trend: Multi-Agent Swarms</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Agents moving from single-tasking to autonomous orchestration in 2026 content workflows.</p>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     </div>
 
-    <div id="detail-modal" class="modal flex items-center justify-center p-6">
-        <div class="glass max-w-2xl w-full p-10 rounded-3xl relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl">×</button>
-            <h2 id="modal-title" class="text-3xl font-bold text-emerald-400 mb-2"></h2>
-            <p id="modal-subtitle" class="text-emerald-200/50 uppercase tracking-widest text-xs mb-6"></p>
-            <div id="modal-content" class="text-slate-300 leading-relaxed"></div>
+    <div id="detail-modal" class="modal flex items-center justify-center p-8">
+        <div class="glass max-w-3xl w-full max-h-[80vh] overflow-y-auto p-12 rounded-[40px] relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-500 hover:text-white text-3xl transition">×</button>
+            <div class="flex items-center gap-3 mb-4">
+                <span id="modal-cat" class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded font-black uppercase tracking-widest"></span>
+            </div>
+            <h2 id="modal-title" class="text-4xl font-black mb-8 text-white tracking-tight"></h2>
+            <div id="modal-content" class="text-slate-400 leading-relaxed text-lg space-y-4 font-light"></div>
         </div>
     </div>
 
     <script>
+        const data = [
+            {"title": "Aura", "category": "Venture", "summary": "AI Executive Video/Voice Coaching Platform. Multimodal body language analysis."},
+            {"title": "Loomin", "category": "Automation", "summary": "Autonomous Viral Engine. Extracts hooks and vibe-codes scripts daily."},
+            {"title": "Mirror", "category": "Venture", "summary": "High-stakes Negotiation Practice. Real-time adversarial voice simulation."},
+            {"title": "Echo", "category": "Venture", "summary": "International Founder Tone Mastery. Dialect & cultural presence training."}
+        ];
+
         function checkPw() {
             if(document.getElementById('pw').value === 'orchard2026') {
                 localStorage.setItem('orchard_auth', 'true');
                 showDash();
             }
         }
+        function logout() {
+            localStorage.removeItem('orchard_auth');
+            location.reload();
+        }
         function showDash() {
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.body.classList.remove('items-center', 'justify-center');
+            renderCards();
         }
-        function openModal(title, subtitle, content) {
+        function renderCards() {
+            const grid = document.getElementById('venture-grid');
+            grid.innerHTML = data.map(item => `
+                <div onclick="openModal('${item.title}', '${item.category}', '${item.summary}')" class="glass p-6 rounded-3xl hover:bg-white/5 cursor-pointer transition-all border border-white/5 hover:border-emerald-500/30 group">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50">${item.category}</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400">→</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-400 transition-colors">${item.title}</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">${item.summary}</p>
+                </div>
+            `).join('');
+        }
+        function openModal(title, cat, content) {
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-subtitle').innerText = subtitle;
+            document.getElementById('modal-cat').innerText = cat;
             document.getElementById('modal-content').innerText = content;
             document.getElementById('detail-modal').style.display = 'flex';
         }
