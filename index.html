@@ -8,98 +8,83 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.07); }
-        .glass-dark { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-dark { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
         body { background: #020617; color: #f8fafc; }
         .report-active { display: block !important; }
-        .prose h1 { color: #10b981; font-weight: 900; font-size: 2.5rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 1rem; }
-        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1.25rem; }
-        .prose p { color: #cbd5e1; margin-bottom: 1.25rem; line-height: 1.8; font-size: 1.1rem; }
+        .prose h1 { color: #10b981; font-weight: 900; font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 0.75rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { color: #cbd5e1; margin-bottom: 1.25rem; line-height: 1.7; font-size: 1rem; }
         .prose ul { list-style-type: square; padding-left: 1.5rem; color: #94a3b8; margin-bottom: 1.5rem; }
-        .prose li { margin-bottom: 0.5rem; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen font-sans selection:bg-emerald-500/30 overflow-x-hidden">
+<body class="min-h-screen font-sans selection:bg-emerald-500/30 overflow-x-hidden pb-24 lg:pb-0">
     
     <!-- Lock Screen -->
     <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[200]">
-        <div class="glass p-12 rounded-[2.5rem] shadow-2xl w-full max-w-sm text-center">
-            <div class="mb-8 text-6xl">🍏</div>
-            <h1 class="text-3xl font-black mb-2 tracking-tighter text-white">ORCHARD</h1>
-            <p class="text-slate-500 text-[10px] mb-10 uppercase tracking-[0.3em]">Neural Intelligence OS</p>
-            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-4 bg-slate-900/50 border border-white/5 rounded-2xl mb-4 text-center focus:outline-none focus:border-emerald-500 transition-all text-white placeholder:text-slate-700">
+        <div class="glass p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm text-center mx-4">
+            <div class="mb-6 text-5xl">🍏</div>
+            <h1 class="text-2xl font-black mb-1 tracking-tighter text-white">ORCHARD</h1>
+            <p class="text-slate-500 text-[10px] mb-8 uppercase tracking-[0.3em]">Intelligence OS</p>
+            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-4 bg-slate-900 border border-white/5 rounded-2xl mb-4 text-center focus:outline-none focus:border-emerald-500 transition-all text-white placeholder:text-slate-700">
             <button onclick="checkPw()" class="w-full bg-white text-black hover:bg-emerald-400 py-4 rounded-2xl font-black transition-all">ENTER</button>
         </div>
     </div>
 
     <!-- Main OS Interface -->
     <div id="dashboard" class="hidden opacity-0 transition-opacity duration-700">
-        <!-- Sidebar -->
-        <aside class="fixed left-0 top-0 bottom-0 w-20 lg:w-72 glass-dark border-r border-white/5 z-50 flex flex-col p-6">
+        <!-- Desktop Sidebar -->
+        <aside class="fixed left-0 top-0 bottom-0 w-72 glass-dark border-r border-white/5 z-50 hidden lg:flex flex-col p-8">
             <div class="mb-12 px-2">
-                <h2 class="text-emerald-400 font-black text-2xl tracking-tighter hidden lg:block">ORCHARD<span class="text-slate-600">.ai</span></h2>
-                <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest hidden lg:block mt-1">v1.6 Core Alpha</div>
+                <h2 class="text-emerald-400 font-black text-2xl tracking-tighter">ORCHARD<span class="text-slate-600">.ai</span></h2>
+                <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">v1.7 Mobile Optimized</div>
             </div>
-            
             <nav class="flex-1 space-y-2">
-                <button onclick="filterCat('all')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">
-                    <span class="text-lg">📂</span> <span class="hidden lg:block font-bold text-sm">All Files</span>
-                </button>
-                <button onclick="filterCat('Venture')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">
-                    <span class="text-lg">💎</span> <span class="hidden lg:block font-bold text-sm text-slate-400">Ventures</span>
-                </button>
-                <button onclick="filterCat('Intel')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">
-                    <span class="text-lg">⚡</span> <span class="hidden lg:block font-bold text-sm text-slate-400">Intelligence</span>
-                </button>
-                <button onclick="filterCat('Ops')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">
-                    <span class="text-lg">🛠️</span> <span class="hidden lg:block font-bold text-sm text-slate-400">Operations</span>
-                </button>
+                <button onclick="filterCat('all')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">📂 <span class="font-bold text-sm">All Files</span></button>
+                <button onclick="filterCat('Venture')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">💎 <span class="font-bold text-sm text-slate-400">Ventures</span></button>
+                <button onclick="filterCat('Ops')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition flex items-center gap-3">🛠️ <span class="font-bold text-sm text-slate-400">Operations</span></button>
             </nav>
-
             <div class="mt-auto pt-6 border-t border-white/5 space-y-4">
-                <div class="px-4 hidden lg:block">
-                    <p class="text-[10px] font-bold text-slate-600 uppercase mb-2">Primary Node</p>
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs font-mono text-emerald-500/70">SRV-1314365</span>
-                    </div>
-                </div>
-                <button onclick="logout()" class="w-full px-4 py-3 text-slate-500 hover:text-red-400 text-sm font-bold transition flex items-center gap-3">
-                    <span>🔒</span> <span class="hidden lg:block">Lock Session</span>
-                </button>
+                <button onclick="logout()" class="w-full px-4 py-3 text-slate-500 hover:text-red-400 text-sm font-bold transition flex items-center gap-3">🔒 <span>Lock Session</span></button>
             </div>
         </aside>
 
+        <!-- Mobile Bottom Nav -->
+        <nav class="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 z-[150] lg:hidden flex justify-around p-4">
+            <button onclick="filterCat('all')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">📂 <span>All</span></button>
+            <button onclick="filterCat('Venture')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">💎 <span>Ventures</span></button>
+            <button onclick="filterCat('Ops')" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">🛠️ <span>Ops</span></button>
+            <button onclick="logout()" class="flex flex-col items-center gap-1 text-xs font-bold text-slate-400">🔒 <span>Lock</span></button>
+        </nav>
+
         <!-- Main Content Area -->
-        <main class="lg:ml-72 p-8 lg:p-16 min-h-screen">
-            <header class="mb-16">
-                <h1 class="text-4xl lg:text-6xl font-black tracking-tighter mb-4">Welcome back, <span class="text-emerald-400">Nathan</span>.</h1>
-                <p class="text-slate-500 text-lg">Your Orchard has 4 active harvests ready for review.</p>
+        <main class="lg:ml-72 p-6 lg:p-16 min-h-screen">
+            <header class="mb-10 lg:mb-16">
+                <h1 class="text-3xl lg:text-6xl font-black tracking-tighter mb-2">Home <span class="text-emerald-400">Nathan</span>.</h1>
+                <p class="text-slate-500 text-sm lg:text-lg font-medium">Neural OS is online and blooming.</p>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="file-grid">
-                <!-- Dynamic File Cards -->
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8" id="file-grid"></div>
         </main>
     </div>
 
     <!-- Full Screen Reader View -->
-    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[100] hidden overflow-y-auto">
-        <div class="max-w-4xl mx-auto px-8 py-16 lg:py-32">
-            <nav class="fixed top-0 left-0 right-0 glass-dark py-4 px-8 flex justify-between items-center z-[110]">
-                <button onclick="closeReader()" class="flex items-center gap-2 text-slate-400 hover:text-emerald-400 font-bold transition">
+    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[200] hidden overflow-y-auto">
+        <div class="max-w-4xl mx-auto px-6 py-12 lg:py-32">
+            <nav class="fixed top-0 left-0 right-0 glass-dark py-4 px-6 flex justify-between items-center z-[210]">
+                <button onclick="closeReader()" class="flex items-center gap-2 text-slate-400 hover:text-emerald-400 font-bold transition text-sm">
                     <span>←</span> BACK
                 </button>
                 <div id="reader-meta" class="text-[10px] font-black uppercase tracking-widest text-slate-600"></div>
             </nav>
-            <div id="reader-content" class="prose max-w-none mt-10"></div>
+            <div id="reader-content" class="prose max-w-none mt-12 lg:mt-0"></div>
         </div>
     </div>
 
     <script>
         const library = [
-            { id: 'aura', title: "Aura: Executive Coach", category: "Venture", date: "2026-01-31", icon: "🎙️", summary: "Gemini 3 powered voice/video analysis for high-stakes communication training.", content: `# Venture Architecture Report: High-Margin AI Businesses
+            { id: 'aura', title: "Aura: Executive Coach", category: "Venture", date: "2026-01-31", icon: "🎙️", summary: "Gemini 3 powered voice/video analysis for communication training.", content: `# Venture Architecture Report: High-Margin AI Businesses
 
 **DATE:** 2026-01-31
 **TO:** Project Lead
@@ -172,7 +157,7 @@ This report outlines three high-margin business concepts designed to capitalize 
     *   **Connected Apps:** A simple, icon-based view of the services Cortex is connected to (Gmail, X, Stripe, etc.).
     *   **Generative Dashboard:** The dashboard is a blank canvas. The user *asks* the agent for what they want to see. \"Cortex, show me my sales pipeline vs. last month.\" The agent generates and displays the relevant chart or data on the fly.
     *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` },
-            { id: 'mirror', title: "Mirror: Negotiation Practice", category: "Venture", date: "2026-01-31", icon: "🤝", summary: "Adversarial voice simulation for practicing complex business negotiations.", content: `### **Venture Brief: AI-Powered Voice Coaching**
+            { id: 'mirror', title: "Mirror: Negotiation", category: "Venture", date: "2026-01-31", icon: "🤝", summary: "Real-time adversarial voice simulation for negotiation practice.", content: `### **Venture Brief: AI-Powered Voice Coaching**
 
 This document outlines two high-end, AI-driven business ventures leveraging Gemini 3's advanced real-time voice analysis capabilities.
 
@@ -260,14 +245,14 @@ The goal is for users to be judged on the strength of their ideas, not the unfam
 *   **Model:** A hybrid B2C and B2B approach.
     *   **B2C:** Premium subscription for individual founders.
     *   **B2B:** Enterprise sales to Venture Capital funds and Accelerators, who offer Echo as a value-add service to their portfolio companies.` },
-            { id: 'pulse', title: "Pulse: Agentic CRM", category: "Venture", date: "2026-01-31", icon: "📈", summary: "Proactive relationship management that identifies opportunities while you sleep.", content: `**Title:** LexiMind
+            { id: 'pulse', title: "Pulse: Agentic CRM", category: "Venture", date: "2026-01-31", icon: "📈", summary: "Proactive founder CRM that mines opportunities autonomously.", content: `**Title:** LexiMind
 
 **Category:** Agentic AI for Legal Services
 
 **Why now:** As of early 2026, AI has evolved from passive tools to sophisticated, autonomous \"agentic\" systems capable of complex reasoning. This new capability aligns perfectly with a critical, underserved need in the legal sector: managing the overwhelming data volumes in corporate litigation and due diligence. While basic e-discovery tools exist, the market lacks an AI that can autonomously perform high-value legal research, analyze case law, and synthesize findings with minimal human oversight. With the US patent office showing favorability towards AI patents, now is the opportune moment to build a defensible, first-mover product in this high-margin professional services niche.
 
 **Revenue Model:** A tiered SaaS subscription based on the volume of documents processed and the number of AI agent \"seats\" licensed to a law firm. Premium tiers will offer agents specialized in specific, high-value legal domains like patent litigation or M&A.` },
-            { id: 'costs', title: "Orchard Cost Log", category: "Ops", date: "2026-01-31", icon: "🪙", summary: "Daily token usage and model spend tracking for the entire machine.", content: `# ORCHARD COST LOG
+            { id: 'costs', title: "Orchard Cost Log", category: "Ops", date: "2026-01-31", icon: "🪙", summary: "Daily token usage and model spend tracking.", content: `# ORCHARD COST LOG
 
 ## Session: 2026-01-31
 
@@ -304,14 +289,14 @@ The goal is for users to be judged on the strength of their ideas, not the unfam
         function renderGrid(files) {
             const grid = document.getElementById('file-grid');
             grid.innerHTML = files.map(file => `
-                <div onclick="openReader('${file.id}')" class="glass p-8 rounded-[2.5rem] hover:bg-white/5 cursor-pointer transition-all border border-white/5 hover:border-emerald-500/30 group relative overflow-hidden">
-                    <div class="text-4xl mb-6">${file.icon}</div>
-                    <div class="flex justify-between items-center mb-2">
+                <div onclick="openReader('${file.id}')" class="glass p-6 lg:p-8 rounded-[2rem] hover:bg-white/5 cursor-pointer transition-all border border-white/5 hover:border-emerald-500/30 group relative">
+                    <div class="text-3xl mb-4">${file.icon}</div>
+                    <div class="flex justify-between items-center mb-1">
                         <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50">${file.category}</span>
                         <span class="text-[10px] font-mono text-slate-700">${file.date}</span>
                     </div>
-                    <h3 class="text-2xl font-black mb-4 group-hover:text-emerald-400 transition-colors">${file.title}</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">${file.summary}</p>
+                    <h3 class="text-xl lg:text-2xl font-black mb-3 group-hover:text-emerald-400 transition-colors text-white">${file.title}</h3>
+                    <p class="text-xs lg:text-sm text-slate-500 leading-relaxed">${file.summary}</p>
                 </div>
             `).join('');
         }
@@ -319,6 +304,7 @@ The goal is for users to be judged on the strength of their ideas, not the unfam
         function filterCat(cat) {
             if(cat === 'all') renderGrid(library);
             else renderGrid(library.filter(f => f.category === cat || f.category.includes(cat)));
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function openReader(id) {
@@ -328,6 +314,10 @@ The goal is for users to be judged on the strength of their ideas, not the unfam
             document.getElementById('reader-view').classList.add('report-active');
             document.body.style.overflow = 'hidden';
             window.scrollTo(0,0);
+        }
+
+        function closeModal() { // Backwards compat
+            closeReader();
         }
 
         function closeReader() {
