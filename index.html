@@ -8,49 +8,45 @@
     <style>
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         body { background: #0f172a; color: white; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 50; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center font-sans">
     <div id="lock-screen" class="glass p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-        <h1 class="text-3xl font-bold mb-6 text-emerald-400">Orchard v1.2</h1>
-        <input type="password" id="pw" placeholder="Enter Access Key" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg mb-4 text-center focus:outline-none focus:border-emerald-500">
-        <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold transition">Unlock Dashboard</button>
+        <h1 class="text-3xl font-bold mb-6 text-emerald-400">Orchard v1.3</h1>
+        <input type="password" id="pw" placeholder="Enter Access Key" class="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg mb-4 text-center">
+        <button onclick="checkPw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold">Unlock</button>
     </div>
 
     <div id="dashboard" class="hidden w-full max-w-6xl p-6">
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-4xl font-black text-emerald-400">ORCHARD.AI</h1>
-            <div class="glass px-4 py-2 rounded-full text-sm font-mono uppercase tracking-widest">VP of Product Mode</div>
+            <div class="glass px-4 py-2 rounded-full text-sm font-mono tracking-widest">PRODUCT PORTAL</div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <section class="glass p-8 rounded-3xl">
-                <h2 class="text-2xl font-bold mb-6 flex items-center">💎 Venture Gallery</h2>
-                <div class="space-y-4" id="venture-list">
-                    <!-- Dynamic Content -->
-                    <div class="p-4 bg-slate-800/50 rounded-xl border border-white/5">
+                <h2 class="text-2xl font-bold mb-6 text-emerald-400">💎 Venture Gallery</h2>
+                <div class="space-y-4">
+                    <div onclick="openModal('Aura', 'AI Executive Coaching Platform', 'Analyzing video body language + vocal tone using Gemini 3; generating personalized voice-correction drills. Revenue: Tiered B2B Subscriptions.')" class="p-4 bg-slate-800/50 hover:bg-emerald-900/20 rounded-xl border border-white/5 cursor-pointer transition">
                         <h3 class="font-bold text-emerald-300">Aura</h3>
                         <p class="text-sm text-slate-400">Executive Video/Voice Coaching Platform</p>
                     </div>
-                    <div class="p-4 bg-slate-800/50 rounded-xl border border-white/5">
+                    <div onclick="openModal('Loomin', 'Autonomous Viral Engine', 'Watches trending videos, extracts hook structures, and vibe-codes new scripts. Revenue: Content Creator SaaS.')" class="p-4 bg-slate-800/50 hover:bg-emerald-900/20 rounded-xl border border-white/5 cursor-pointer transition">
                         <h3 class="font-bold text-emerald-300">Loomin</h3>
                         <p class="text-sm text-slate-400">Autonomous Viral Content Engine</p>
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
 
-            <section class="glass p-8 rounded-3xl">
-                <h2 class="text-2xl font-bold mb-6 flex items-center">⚡ Intelligence Feed</h2>
-                <div class="space-y-4">
-                    <div class="flex gap-4 p-4 hover:bg-white/5 transition rounded-xl">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
-                        <div>
-                            <p class="font-bold">Gemini 3 Integration Successful</p>
-                            <p class="text-xs text-slate-500">Multimodal pipeline active.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    <div id="detail-modal" class="modal flex items-center justify-center p-6">
+        <div class="glass max-w-2xl w-full p-10 rounded-3xl relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl">×</button>
+            <h2 id="modal-title" class="text-3xl font-bold text-emerald-400 mb-2"></h2>
+            <p id="modal-subtitle" class="text-emerald-200/50 uppercase tracking-widest text-xs mb-6"></p>
+            <div id="modal-content" class="text-slate-300 leading-relaxed"></div>
         </div>
     </div>
 
@@ -65,6 +61,15 @@
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.body.classList.remove('items-center', 'justify-center');
+        }
+        function openModal(title, subtitle, content) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-subtitle').innerText = subtitle;
+            document.getElementById('modal-content').innerText = content;
+            document.getElementById('detail-modal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('detail-modal').style.display = 'none';
         }
         if(localStorage.getItem('orchard_auth') === 'true') showDash();
     </script>
