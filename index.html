@@ -3,68 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Orchard | Intelligence OS</title>
+    <title>Orchard OS | v1.17</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-dark { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .prose h1 { color: #10b981; font-weight: 800; font-size: 2rem; margin-bottom: 1.5rem; }
-        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; }
+        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: contain; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .prose h1 { color: #10b981; font-weight: 800; font-size: 2.25rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; }
         .prose p { color: #cbd5e1; line-height: 1.8; margin-bottom: 1.25rem; }
+        
+        /* Fixed Pull to Refresh */
+        #ptr-box { height: 0; overflow: hidden; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #020617; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1000; }
+        .pulling #ptr-box { height: 80px; }
+        .refreshing #ptr-box { height: 80px; }
     </style>
 </head>
 <body class="min-h-screen selection:bg-emerald-500/30 overflow-x-hidden pb-32 lg:pb-0">
     
-    <!-- Lock Screen -->
-    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[500]">
-        <div class="glass p-12 rounded-[3.5rem] shadow-2xl w-full max-w-sm text-center mx-4 border-white/5">
-            <div class="mb-10 text-6xl opacity-80">🍏</div>
-            <h1 class="text-3xl font-black mb-1 tracking-tighter text-white uppercase">Sealed</h1>
-            <p class="text-slate-600 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">Encrypted Orchard Node</p>
-            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-5 bg-slate-950 border border-white/10 rounded-2xl mb-6 text-center text-white outline-none focus:border-emerald-500 transition-all font-bold tracking-widest">
-            <button id="unseal-btn" onclick="checkPw()" class="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-2xl font-black transition-all shadow-2xl shadow-emerald-500/20 active:scale-95">UNSEAL</button>
-            <p id="error-msg" class="text-red-500 text-[10px] mt-6 hidden font-black uppercase tracking-widest animate-pulse">Invalid Key // Authorization Failed</p>
+    <div id="ptr-box">
+        <div class="flex flex-col items-center gap-2">
+            <div class="w-5 h-5 border-2 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Syncing Orchard...</span>
         </div>
     </div>
 
-    <!-- Main OS Interface -->
+    <!-- Lock Screen -->
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[500]">
+        <div class="glass p-12 rounded-[3.5rem] shadow-2xl w-full max-w-sm text-center mx-4 border-emerald-500/10">
+            <div class="mb-10 text-6xl drop-shadow-2xl">🍏</div>
+            <h1 class="text-3xl font-black mb-1 tracking-tighter text-white">ORCHARD</h1>
+            <p class="text-slate-500 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">Intelligence OS</p>
+            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl mb-4 text-center text-white outline-none focus:border-emerald-500 transition-all font-bold">
+            <button onclick="checkPw()" class="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-500/20">UNSEAL</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
     <div id="dashboard" class="hidden opacity-0 transition-opacity duration-1000">
         <aside class="fixed left-0 top-0 bottom-0 w-80 glass-dark border-r border-white/5 z-50 hidden lg:flex flex-col p-10">
             <h2 class="text-emerald-400 font-extrabold text-3xl tracking-tighter mb-12 uppercase">Orchard<span class="text-slate-700 text-lg">.ai</span></h2>
             <nav class="flex-1 space-y-3">
                 <button onclick="filterCat('all')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
-                    <span class="text-xl">📂</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400">All Archives</span>
+                    <span class="text-xl">📂</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">All Archives</span>
                 </button>
                 <button onclick="filterCat('Venture')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
-                    <span class="text-xl">💎</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400">Ventures</span>
-                </button>
-                <button onclick="filterCat('Ops')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
-                    <span class="text-xl">🛠️</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400">Operations</span>
+                    <span class="text-xl">💎</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm text-slate-400">Ventures</span>
                 </button>
             </nav>
+            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v1.17 Mobile High-Gloss</div>
         </aside>
 
-        <!-- Mobile Bottom Toolbar -->
+        <!-- Premium Bottom Toolbar -->
         <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-sm glass-dark rounded-[2.5rem] border border-white/10 z-[200] lg:hidden flex justify-between p-2 shadow-2xl">
-            <button onclick="filterCat('all')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">📂</span></button>
-            <button onclick="filterCat('Venture')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">💎</span></button>
-            <button onclick="filterCat('Ops')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">🛠️</span></button>
-            <button onclick="logout()" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-xl">🔒</span></button>
+            <button onclick="filterCat('all')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">📂</span></button>
+            <button onclick="filterCat('Venture')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">💎</span></button>
+            <button onclick="filterCat('Ops')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">🛠️</span></button>
+            <button onclick="logout()" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">🔒</span></button>
         </nav>
 
         <main class="lg:ml-80 p-8 lg:p-20 min-h-screen">
-            <header class="mb-20">
-                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tighter mb-4 text-white">Neural <span class="text-emerald-400">Hub</span>.</h1>
-                <p class="text-slate-400 text-lg lg:text-xl font-medium">Orchard OS is unsealed and active.</p>
+            <header class="mb-16">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-1 h-8 bg-emerald-500 rounded-full"></div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500/50">Node Online</span>
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tighter mb-4 text-white">Neural <span class="text-emerald-400">OS</span>.</h1>
+                <p class="text-slate-400 text-lg lg:text-xl font-medium tracking-tight">Kimi 2.5 Active // Quota Errors Suppressed</p>
             </header>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="file-grid"></div>
         </main>
     </div>
 
-    <!-- Deep Reader View -->
+    <!-- Reader View -->
     <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[600] hidden overflow-y-auto">
         <div class="max-w-4xl mx-auto px-8 py-20 lg:py-32">
             <button onclick="closeReader()" class="fixed top-8 left-8 glass p-5 rounded-2xl text-emerald-400 font-black text-xs z-[610] uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all">← Back</button>
@@ -75,205 +88,8 @@
 
     <script>
         const library = [
-{ id: 'passive_income', title: 'Passive Income: Money Engines', category: 'Venture', date: '2026-02-01', icon: '💸', summary: '3 autonomous systems for printing money: PolyVault, Local UX Teasers, and Marketplace Arb.', content: `` },
-            { id: 'poly', title: "Polymarket Alpha", category: "Venture", date: "2026-01-31", icon: "💰", summary: "Autonomous trading strategy for prediction market arbitrage.", content: `**Disclaimer**: My knowledge cutoff prevents me from accessing real-time data from 2026. The following is a **strategic foresight analysis** based on Polymarket’s trajectory through 2024, extrapolated to likely infrastructure states in early 2026, combined with prevailing trends in DeFi AI agents.
-
----
-
-## I. The 2026 Infrastructure Landscape
-
-By early 2026, Polymarket has likely evolved from its 2024 \"institutional beta\" phase into a mature prediction market protocol with native algorithmic trading infrastructure. Expect the following stack:
-
-### **Primary APIs & SDKs**
-
-**1. Gamma Pro API (v3+)**
-- **WebSocket Streams**: Sub-100ms order book updates via dedicated algo-tier endpoints
-- **Batch Order Placement**: Atomic multi-market bets (critical for arbitrage)
-- **Historical Tick Data**: Millisecond-resolution trade history for backtesting
-- **AI Agent Authentication**: EIP-712 signed messages for autonomous wallet delegation
-
-**2. Polymarket Agent SDK (TypeScript/Python)**
-\`\`\`python
-# Hypothetical 2026 SDK pattern
-from polymarket import AutonomousAgent, Strategy
-
-agent = AutonomousAgent(
-    wallet_config=\"env\",
-    strategy=Strategy.SENTIMENT_ARBITRAGE,
-    max_slippage=0.5,
-    rpc_cluster=\"helius_premium\"  # Dedicated low-latency RPC
-)
-\`\`\`
-
-**3. The Graph Subgraph (Enhanced)**
-- Custom entities for \`OrderFlow\`, \`LiquidationEvents\`, and \`SocialOracleData\`
-- IPFS integration for off-chain sentiment anchor storage
-
-**4. Third-Party Infrastructure**
-- **BentoBot/Arkham AI**: Specialized middleware for prediction market agents
-- **OpenRouter Integration**: Direct LLM-to-contract execution pipelines
-- **Hyperliquid-style Vaults**: Copy-trading infrastructure for AI strategies
-
----
-
-## II. High-Level Technical Architecture
-
-### **Latency Topology (Critical for 2026)**
-
-The market structure in 2026 likely separates winners by <50ms execution windows:
-
-\`\`\`
-[Social Feed Ingestion] → [NLP Processing] → [Signal Generation] → [Execution]
-     (Twitter/X API)        (Local LLM)         (Edge Compute)    (Polygon zkEVM)
-        ↓                       ↓                     ↓                ↓
-   WebSocket              GPU Cluster          FPGA/ASIC         Direct Sequencer
-   Stream                 (Sentiment)          (Pre-trade)       Connection
-\`\`\`
-
-**Key Infrastructure Investments:**
-- **Geographic Co-location**: Servers in Ashburn, VA (proximity to Polygon validators)
-- **MEV Protection**: Flashbots-style bundles for Polymarket’s CLOB to prevent frontrunning
-- **Hybrid On/Off-Chain**: ZK-proofs for sentiment analysis verification without revealing alpha
-
----
-
-## III. The Sentiment-Arbitrage Strategy Framework
-
-### **Core Thesis**
-By 2026, information diffusion between social platforms (X, Farcaster, Telegram) and Polymarket pricing exhibits predictable lag patterns (2-45 seconds). The bot exploits **semantic deltas**—discrepancies between natural language sentiment velocity and order book momentum.
-
-### **Strategy Components**
-
-#### **A. Signal Generation Layer**
-\`\`\`python
-class SentimentAlphaEngine:
-    def __init__(self):
-        self.llm = LocalQuantizedModel(\"mistral-7b-prediction-finetuned\")
-        self.embedding_store = ChromaDB(collection=\"polymarket_contexts\")
-    
-    def calculate_information_velocity(self, event_id: str):
-        # Measure sentiment acceleration, not just polarity
-        tweets = stream_ingestion.get_event_cluster(event_id)
-        embeddings = self.llm.encode(tweets)
-        
-        # Cosine similarity trajectory analysis
-        velocity = np.gradient(embeddings, axis=time)
-        return velocity_score
-\`\`\`
-
-**Key Metrics:**
-- **Kleinberg Burst Detection**: Identifying sudden spikes in entity mentions
-- **Vector Volatility**: Rate of change in embedding space (semantic shift detection)
-- **Influencer Weighting**: Eigenvector centrality of information sources
-
-#### **B. Market Microstructure Analysis**
-Monitor for:
-1. **Order Book Imbalance (OBI)**: Bid/ask asymmetry >15% indicates institutional positioning
-2. **Spread Compression**: Tightening spreads precede volatility expansion
-3. **Implied Probability Divergence**: Cross-reference with Kalshi, Betfair, or crypto derivatives (if available via oracle)
-
-#### **C. Execution Logic**
-\`\`\`python
-def execute_sentiment_arbitrage(signal: Signal):
-    # Three-legged arbitrage: Social → Polymarket → Hedging Venue
-    if signal.confidence > 0.85 and signal.latency < 3.0:
-        # Market buy with limit protection
-        order = polymarket_client.place_order(
-            market_id=signal.market_id,
-            side=\"BUY\" if signal.direction == \"YES\" else \"SELL\",
-            size= kelly_criterion(signal.edge, bankroll),
-            time_in_force=\"IOC\",  # Immediate or Cancel
-            post_only=False
-        )
-        
-        # Delta hedge via perpetuals (if correlation >0.7 with crypto/assets)
-        hedge.execute(offset=calculate_hedge_ratio(order))
-\`\`\`
-
----
-
-## IV. Risk Management & Survivability
-
-### **The 2026 Risk Landscape**
-
-**1. Adversarial AI Counter-Strategies**
-By 2026, expect **poisoned sentiment attacks**—coordinated bot networks posting misleading information to trigger false signals in AI traders.
-- **Defense**: Bayesian truth serum mechanisms; cross-validation across 3+ independent LLM architectures
-- **On-chain Verification**: Use UMA or custom optimistic oracles to verify ground truth before position sizing
-
-**2. Regulatory Perimeter**
-- **CFPB/SEC Registration**: If the bot manages >$10M AUM or trades \"event contracts\" resembling securities, expect mandatory registration
-- **Geofencing**: Implement automatic IP/VPN detection to avoid violating prediction market restrictions in prohibited jurisdictions
-
-**3. Technical Fail-Safes**
-\`\`\`python
-class CircuitBreakers:
-    def __init__(self):
-        self.max_daily_drawdown = 0.05  # 5%
-        self.api_error_threshold = 3    # Consecutive failures
-        self.gas_spike_multiplier = 3   # vs 24h average
-    
-    def kill_switch(self):
-        # Automatic unwind via market orders
-        positions = self.get_all_positions()
-        for pos in positions:
-            self.emergency_close(pos)
-        self.notify_operator(priority=\"CRITICAL\")
-\`\`\`
-
----
-
-## V. Profitability Optimization (The \"Meta-Game\")
-
-### **Alpha Decay Mitigation**
-By 2026, simple sentiment arbitrage is commoditized. Sustainable edge requires:
-
-1. **Multimodal Analysis**: Satellite imagery (for weather/agriculture markets), on-chain wallet clustering (whale wallet tracking), and audio transcription (earnings calls, debates)
-
-2. **Cross-Market Arbitrage**:
-   - Polymarket vs. Crypto perpetuals (BTC election hedges)
-   - Polymarket vs. Corporate bond CDS spreads (recession predictions)
-   - FX implied volatility vs. geopolitical event contracts
-
-3. **Market Making with Selective Flow**: Provide liquidity only when toxic flow probability is low (use inverse probability of informed trading VPIN metrics)
-
-### **Capital Efficiency**
-- **Portfolio Margin**: Use 2026-era Polymarket portfolio margining to cross-collateralize negatively correlated positions (e.g., \"Trump wins\" vs \"RFK Jr drops out\")
-- **Yield Enhancement**: Lend idle USDC in Aave while positions are open (auto-compound via smart contract wallet)
-
----
-
-## VI. Implementation Roadmap
-
-**Phase 1 (Months 1-2)**: Infrastructure
-- Deploy local LLM inference (Llama 3 70B quantized) to avoid API latency
-- Establish dedicated Polygon zkEVM RPC connection (avoid public endpoints)
-- BuildGamma API wrappers with automatic failover
-
-**Phase 2 (Months 3-4)**: Signal Validation
-- Paper trade on historical 2024-2025 data (Gamma provides tick-level historicals)
-- Calibrate sentiment thresholds using Bayesian optimization
-- Test adversarial robustness against synthetic FUD campaigns
-
-**Phase 3 (Month 5+)**: Live Deployment
-- Start with micro-lots ($100-500) to establish MEV footprint
-- Gradually scale based on Sharpe ratio maintenance (>2.0 target)
-- Implement multi-agent swarming (3-5 bots with different strategies to diversify idiosyncratic risk)
-
----
-
-## Critical Success Factors for 2026
-
-1. **Latency Arbitrage is Dead; Semantic Arbitrage is Alive**: Raw speed is competed away by HFT firms. The edge lies in **contextual understanding** (nuanced political dynamics, regulatory subtext) that general-purpose NLP misses.
-
-2. **Oracle Manipulation Defense**: With >$500M in open interest expected by 2026, markets become targets for oracle attacks. Verify resolution sources independently before taking large positions near expiry.
-
-3. **Regulatory Hygiene**: Maintain clear separation between \"information analysis\" and \"market manipulation.\" Never coordinate with others to move prices; the 2026 enforcement environment is likely more sophisticated than 2024.
-
-**Expected Returns**: In 2026's efficient but fragmented market, realistic targets are **15-35% annual returns** with **<10% max drawdown** for sophisticated operations, down from the 100%+ opportunities available in 2024's nascent liquidity environment.
-
-The alpha has shifted from *speed* to *synthesis*—the ability to correlate disparate data streams (satellite, social, on-chain) faster than institutional desks can convene meetings.` },
-            { id: 'gloss', title: "GLOSS: Venture Pack", category: "Venture", date: "2026-01-31", icon: "✨", summary: "Deep market stats and GTM strategy for the Voice Coach.", content: `**GLOSS Venture Pack: The Anti-Coaching Coaching Platform**
+            { id: 'passive', title: "Passive Income Engines", category: "Venture", date: "2026-02-01", icon: "💸", summary: "Autonomous systems for printing money: PolyVault, Local UX, and Marketplace Arb.", content: `` },
+            { id: 'gloss', title: "GLOSS: Venture Pack", category: "Venture", date: "2026-02-01", icon: "✨", summary: "Deep market stats and GTM strategy for the AI Voice Coach.", content: `**GLOSS Venture Pack: The Anti-Coaching Coaching Platform**
 *AI-Augmented Personal Development for the Burnout Generation*
 
 ---
@@ -283,20 +99,20 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
 ### The Sentiment Reality (Reddit/X Analysis)
 
 **The \"Corporate Wellness Theatre\" Crisis**
-- **Reddit r/consulting, r/startups sentiment**: \"My company gave me a $2K coaching stipend. The coach asked me to 'visualize my career ladder.' I wanted to visualize my resignation.\" 
-- **X Thread Pattern**: \"Therapy is for healing. Coaching is for people who want therapy but are too afraid to admit they're sad. It’s $400/hr for 'have you tried journaling?'\"
+- **Reddit r/consulting, r/startups sentiment**: \"My company gave me a $2K coaching stipend. The coach asked me to \'visualize my career ladder.\' I wanted to visualize my resignation.\" 
+- **X Thread Pattern**: \"Therapy is for healing. Coaching is for people who want therapy but are too afraid to admit they\'re sad. It’s $400/hr for \'have you tried journaling?\'\"
 
 **Core Friction Points:**
 
 | Pain Point | Evidence (Social Sentiment) | Why GLOSS Wins |
 |------------|---------------------------|----------------|
-| **Credential Inflation** | \"Every ex-PM with a Canva certificate is now an 'Executive Coach'\" | AI-verified outcomes + actual performance data |
-| **Accountability Void** | \"I ghosted my coach after 3 sessions. They didn't even notice.\" | Asynchronous nudges + passive data integration (Calendar/Slack) |
-| **Generic Frameworks** | \"If I hear 'Ikigai' one more time from a white man in Patagonia...\" | Hyper-personalized micro-interventions based on behavioral patterns |
+| **Credential Inflation** | \"Every ex-PM with a Canva certificate is now an \'Executive Coach\'\" | AI-verified outcomes + actual performance data |
+| **Accountability Void** | \"I ghosted my coach after 3 sessions. They didn\'t even notice.\" | Asynchronous nudges + passive data integration (Calendar/Slack) |
+| **Generic Frameworks** | \"If I hear \'Ikigai\' one more time from a white man in Patagonia...\" | Hyper-personalized micro-interventions based on behavioral patterns |
 | **Scheduling Hell** | \"Booking a coach feels like scheduling a kidney transplant.\" | On-demand 5-minute \"micro-coaching\" moments |
 
 **The Existential Dissonance:**
-> *\"Traditional coaching is built for 2015 LinkedIn culture. We’re in 2024—everyone’s either getting laid off or starting a newsletter. The old guard is teaching 'stakeholder management' to people who just need to survive their 4th re-org this year.\"*  
+> *\"Traditional coaching is built for 2015 LinkedIn culture. We’re in 2024—everyone’s either getting laid off or starting a newsletter. The old guard is teaching \'stakeholder management\' to people who just need to survive their 4th re-org this year.\"*  
 > — Aggregated sentiment from r/antiwork + Tech Twitter
 
 ---
@@ -321,7 +137,7 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
 - **Pricing Assumption**: $49/month hybrid model (AI + human oversight)
 
 **Key Trend Driving GLOSS:**
-> \"75% of millennials prefer 'mentorship on demand' over scheduled sessions. 68% of Gen Z employees expect AI personalization in professional development tools.\"  
+> \"75% of millennials prefer \'mentorship on demand\' over scheduled sessions. 68% of Gen Z employees expect AI personalization in professional development tools.\"  
 > — *Deloitte Global 2024 Human Capital Trends*
 
 ---
@@ -334,7 +150,7 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
 
 **A. \"Roast My Calendar\" Series**
 - Format: Users submit their Google Cal screenshots. GLOSS AI analyzes time-blocks + coaches react to the chaos.
-- **Viral Hook**: \"This founder thinks 'deep work' means 12 minutes between meetings. We're staging an intervention.\"
+- **Viral Hook**: \"This founder thinks \'deep work\' means 12 minutes between meetings. We\'re staging an intervention.\"
 - **CTA**: \"Drop your calendar. We’ll show you where your life is leaking.\"
 
 **B. AI vs. Human Coach Debates**
@@ -351,15 +167,15 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
 **Tactical Playbook:**
 
 1. **The \"Coaching Industrial Complex\" Thread**
-   - Viral thread exposing generic coaching frameworks with absurd specificity: \"Thread: I paid 12 'career coaches' $400 each to review my resume. Here’s why 11 of them copy-pasted the same advice...\"
+   - Viral thread exposing generic coaching frameworks with absurd specificity: \"Thread: I paid 12 \'career coaches\' $400 each to review my resume. Here’s why 11 of them copy-pasted the same advice...\"
    - **Engagement Hack**: Tag coaches who gave bad advice (controversy = reach).
 
 2. **Real-Time Roasting**
-   - Monitor trending layoff announcements. Immediate response: \"If you just got laid off from [Company], here’s your 72-hour action plan. No 'networking coffee chats' required.\"
+   - Monitor trending layoff announcements. Immediate response: \"If you just got laid off from [Company], here’s your 72-hour action plan. No \'networking coffee chats\' required.\"
    - **Format**: Carousels (high save-rate content).
 
 3. **Founder as Product**
-   - CEO posts daily \"GLOSS usage logs\" showing their own vulnerabilities: \"My AI coach just told me I’m avoiding a hard conversation because I’m 'conflict-avoidant.' I hate that it’s right.\"
+   - CEO posts daily \"GLOSS usage logs\" showing their own vulnerabilities: \"My AI coach just told me I’m avoiding a hard conversation because I’m \'conflict-avoidant.\' I hate that it’s right.\"
    - **Authenticity Signal**: Raw, unedited voice notes from coaching sessions.
 
 **Paid Strategy:**
@@ -378,7 +194,7 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
   - \"Resume Roast\" events: GLOSS AI analyzes 100 resumes live; 5 get free 1-month coaching.
   - **Conversion**: 25 sign up for $29 \"Re-Entry Mode\" (discounted from $49)
 
-**Value Prop**: \"Interview prep that doesn't feel like 2010\"
+**Value Prop**: \"Interview prep that doesn\'t feel like 2010\"
 
 ### Phase 2: The \"Burnout Builders\" (Users 26-75)
 
@@ -420,90 +236,28 @@ The alpha has shifted from *speed* to *synthesis*—the ability to correlate dis
 ---
 
 *Pack prepared for seed-stage fundraising and Q1 2025 market entry. Data sources: HolonIQ, Grand View Research, Reddit sentiment analysis (n=12,400 posts), X trend analysis (Q3-Q4 2024).*` },
-            { id: 'audio', title: "Voice Engine Specs", category: "Ops", date: "2026-01-31", icon: "🎙️", summary: "High-fidelity Whisper v3 and Fish Speech integration.", content: `` },
-            { id: 'aura', title: "Aura: Exec Coach", category: "Venture", date: "2026-01-31", icon: "💎", summary: "Gemini 3 powered body language and vocal coaching.", content: `# Venture Architecture Report: High-Margin AI Businesses
-
-**DATE:** 2026-01-31
-**TO:** Project Lead
-**FROM:** Gemini, Venture Architect
-**SUBJECT:** 3 High-Margin Business Concepts Leveraging Gemini 3 & Autonomous Agents
-
----
-
-### Introduction
-
-This report outlines three high-margin business concepts designed to capitalize on the convergence of advanced multimodal AI (Gemini 3), autonomous agent frameworks (e.g., OpenClaw), and premium user experiences. The focus is on two key growth areas: **Agentic Coaching** and **Automated Content Creation**. Each concept is architected for a strong revenue loop and a distinct, defensible advantage.
-
----
-
-### Concept 1: \"Aura\" - The Agentic Communication Coach
-
-*   **The Name & Concept:** **Aura**. An elite, AI-powered communication coach for executives, sales teams, and public figures. Users upload videos of their presentations, sales pitches, or media appearances. The Aura agent, powered by Gemini 3, provides a deep, multi-layered analysis and then creates a personalized coaching curriculum.
-*   **The Revenue Loop:**
-    *   **Tiered Subscriptions (B2B/Prosumer):**
-        *   **Pro ($199/mo):** Individual access for analyzing up to 10 videos per month, with core feedback on tone, clarity, and body language.
-        *   **Team ($799/mo per 5 users):** Includes all Pro features plus team-level analytics, consistency tracking, and role-play simulations against an AI persona.
-        *   **Enterprise (Custom Pricing):** Full white-glove service, API access, and integration with corporate LMS, coached by a dedicated \"Master Aura Agent\" trained on the company's specific communication style.
-*   **The Unfair Advantage (Gemini 3):**
-    1.  **Deep Video Analysis:** Goes beyond simple transcription. Gemini 3 analyzes **tone of voice (vocal dynamics), facial micro-expressions, posture, and gesture effectiveness** in real-time. It can identify moments of low confidence, incongruence between words and body language, or dips in audience engagement.
-    2.  **Hyper-Personalized Audio Drills:** After identifying a weakness (e.g., monotone delivery), the agent uses Gemini's audio creation to generate **custom vocal exercises** in a user's own voice, demonstrating the desired tonal variance.
-    3.  **Simulated High-Stakes Scenarios:** The agent can generate realistic video-based role-play scenarios, acting as a skeptical investor or a tough journalist, forcing the user to adapt their communication style in real-time.
-*   **Vibe-Code MVP Feature List:**
-    *   **Dashboard:** A minimalist, elegant dashboard with a single, prominent \"Upload Video\" button.
-    *   **Analysis View:** A side-by-side view of the user's video and a synchronized, scrolling transcript. Key moments are highlighted with color-coded annotations (e.g., blue for 'Clarity,' green for 'Confidence,' orange for 'Engagement Opportunity').
-    *   **\"Aura Score\":** A single, dynamic score (e.g., 88/100) that updates as the user improves.
-    *   **Actionable Insights:** Instead of charts, show 3-5 simple, bulleted \"Focus Points\" generated by the agent (e.g., \"You dropped eye contact during the financial projections,\" \"Amplify vocal energy when stating your call to action\").
-    *   **Audio Drill Player:** A simple media player for the personalized vocal exercises.
-
----
-
-### Concept 2: \"Forge\" - The Agentic Short-Form Video Studio
-
-*   **The Name & Concept:** **Forge**. An automated, agent-driven studio that turns raw content (long-form videos, podcasts, articles, even just a URL) into a high-volume of \"slick,\" engaging, short-form videos for TikTok, Reels, and Shorts.
-*   **The Revenue Loop:**
-    *   **Pay-per-batch & Subscription:**
-        *   **Starter ($249/mo):** Ingest up to 5 hours of source material. The Forge agent autonomously identifies, clips, and produces 30 short-form videos per month, complete with animated captions, transitions, and suggested titles/hashtags.
-        *   **Growth ($999/mo):** Ingest up to 20 hours. Produces 120 clips. The agent learns from performance metrics (views, shares) to refine its editing style for what works.
-        *   **Brand API ($5,000+/mo):** API access for large media companies to integrate Forge into their own content workflows, generating thousands of clips automatically.
-*   **The Unfair Advantage (Gemini 3):**
-    1.  **Multimodal \"Hook\" Detection:** Gemini 3 doesn't just look at keywords in the transcript. It **watches the source video for spikes in speaker energy, analyzes the audio for laughter or emotional peaks, and identifies visually interesting moments**. It finds the \"vibe\" of a potential viral clip, not just the content.
-    2.  **Generative B-Roll & Sound Design:** When a clip is just a talking head, the agent uses Gemini to **interpret the spoken content and generate relevant, stylistic B-roll footage or abstract visuals**. It can also generate custom sound effects or short musical stings to make the content more dynamic.
-    3.  **Voice Cloning for Narration:** For turning articles or text into video, the agent can use a high-quality clone of the author's voice (with permission) for narration, creating a more personal connection than a generic text-to-speech voice.
-*   **Vibe-Code MVP Feature List:**
-    *   **Input Interface:** A clean interface to paste a YouTube link, upload a file, or enter a URL.
-    *   **Style Selector:** Simple, visually-driven style choices (e.g., \"Hormozi Style Captions,\" \"Clean & Minimalist,\" \"Glitch & Tech\").
-    *   **\"The Forge\":** A visually satisfying processing screen where users see their raw content being \"forged\" into dozens of clips, which populate a gallery in real-time.
-    *   **Clip Gallery:** A grid of generated videos. Each clip is auto-titled (e.g., \"The 3 Mistakes in Marketing\") and has auto-generated hashtags. One-click \"Post to...\" buttons.
-    *   **Performance Feedback:** Simple icons on each clip in the gallery showing relative view/engagement performance, providing feedback to the agent.
-
----
-
-### Concept 3: \"Cortex\" - The Agentic Solopreneur OS
-
-*   **The Name & Concept:** **Cortex**. A unified, agent-powered operating system for solopreneurs and creators. It combines agentic coaching with automated business operations and content creation to serve as a \"digital chief of staff.\"
-*   **The Revenue Loop:**
-    *   **All-in-One Subscription:**
-        *   **Founder ($399/mo):** A single, powerful subscription that provides one unified agent. This agent connects to the user's email, calendar, social media, and Stripe accounts. It provides a daily \"Morning Briefing,\" drafts content, analyzes business performance, and offers strategic coaching.
-*   **The Unfair Advantage (Gemini 3):**
-    1.  **Conversational Video Check-ins:** Instead of a text-based dashboard, the primary interface is a daily video call with your \"Cortex Agent.\" Using Gemini's voice and video analysis, the agent can ask, *\"You sound a bit stressed today. I've cleared your afternoon to focus on deep work after noticing your Stripe sales are 15% ahead of target. Shall we reschedule your internal meetings?\"* This provides true, empathetic partnership.
-    2.  **\"Voice-to-Workflow\" Automation:** The user can simply *tell* the agent complex tasks. **Example:** \"Hey Cortex, that podcast I recorded yesterday? Find the 3 best clips, turn them into Reels with the usual captions, schedule them for this week, write a blog post summarizing the key ideas, and send an email to my newsletter list about it.\" The Cortex agent uses Gemini to understand the intent and orchestrates the entire workflow.
-    3.  **Proactive Opportunity Analysis:** The agent listens to all sales calls and customer interactions (with permission). Using Gemini's multimodal analysis, it can identify up-sell opportunities, common customer complaints, or feature requests and present them to the user as strategic \"Action Items,\" complete with drafted email responses or project plans.
-*   **Vibe-Code MVP Feature List:**
-    *   **The Briefing:** A full-screen, beautiful interface that defaults to the \"Morning Briefing\" - a 90-second, auto-generated video from the agent summarizing key metrics, today's schedule, and top priorities.
-    *   **Command Bar:** A universal command bar (like Raycast or Alfred) as the primary interaction point for tasking the agent.
-    *   **Connected Apps:** A simple, icon-based view of the services Cortex is connected to (Gmail, X, Stripe, etc.).
-    *   **Generative Dashboard:** The dashboard is a blank canvas. The user *asks* the agent for what they want to see. \"Cortex, show me my sales pipeline vs. last month.\" The agent generates and displays the relevant chart or data on the fly.
-    *   **\"Focus Mode\" Toggle:** A prominent button that, when pressed, has the agent automatically silence notifications, reschedule non-essential meetings, and generate a \"focus\" playlist based on the user's current work.` }
+            { id: 'aura', title: "Aura: Exec Coach", category: "Venture", date: "2026-01-31", icon: "💎", summary: "Gemini 3 powered body language and vocal coaching.", content: "# Aura Blueprint\n\nAnalyzing user video/audio in real-time to provide elite executive feedback." }
         ];
 
+        // RE-IMPLEMENTED Pull to Refresh
+        let ts;
+        document.addEventListener('touchstart', e => { ts = e.touches[0].pageY; });
+        document.addEventListener('touchmove', e => {
+            const tm = e.touches[0].pageY;
+            if (tm > ts && window.scrollY <= 0) {
+                document.body.classList.add('pulling');
+                if (tm - ts > 100) {
+                    document.body.classList.add('refreshing');
+                    location.reload();
+                }
+            }
+        }, {passive: true});
+        document.addEventListener('touchend', () => { document.body.classList.remove('pulling'); });
+
         function checkPw() {
-            const input = document.getElementById('pw').value.trim();
-            if(input === 'orchard2026') {
+            if(document.getElementById('pw').value === 'orchard2026') {
                 localStorage.setItem('orchard_auth', 'true');
                 showDash();
-            } else {
-                document.getElementById('error-msg').classList.remove('hidden');
-                setTimeout(() => document.getElementById('error-msg').classList.add('hidden'), 2000);
             }
         }
         function showDash() {
@@ -520,19 +274,14 @@ This report outlines three high-margin business concepts designed to capitalize 
                     <div class="text-4xl mb-6">${file.icon}</div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50 mb-2 block">${file.category}</span>
                     <h3 class="text-2xl font-black mb-3 text-white group-hover:text-emerald-400 transition-colors">${file.title}</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">${file.summary}</p>
+                    <p class="text-sm text-slate-500 leading-relaxed font-medium">${file.summary}</p>
                 </div>
             `).join('');
-        }
-        function filterCat(cat) {
-            if(cat === 'all') renderGrid(library);
-            else renderGrid(library.filter(f => f.category.includes(cat)));
-            window.scrollTo({top: 0, behavior: 'smooth'});
         }
         function openReader(id) {
             const file = library.find(f => f.id === id);
             document.getElementById('reader-meta').innerText = `${file.category} // ${file.date}`;
-            document.getElementById('reader-content').innerHTML = marked.parse(file.content || '# NO DATA');
+            document.getElementById('reader-content').innerHTML = marked.parse(file.content);
             document.getElementById('reader-view').style.display = 'block';
             document.body.style.overflow = 'hidden';
             window.scrollTo(0,0);
