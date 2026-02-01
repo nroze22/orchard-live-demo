@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Orchard OS | v1.28 - Minimal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: contain; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .prose h1 { color: #10b981; font-weight: 800; font-size: 2.25rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; }
+        .prose p { color: #cbd5e1; line-height: 1.8; margin-bottom: 1.25rem; }
+        
+        /* Fixed Pull to Refresh */
+        #ptr-box { height: 0; overflow: hidden; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #020617; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1000; }
+        .pulling #ptr-box { height: 80px; }
+        .refreshing #ptr-box { height: 80px; }
+    </style>
+</head>
+<body>
+    
+    <div id="ptr-box">
+        <div class="flex flex-col items-center gap-2">
+            <div class="w-5 h-5 border-2 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Syncing Orchard...</span>
+        </div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center bg-[#020617] z-[500]">
+        <div class="glass p-12 rounded-[3.5rem] shadow-2xl w-full max-w-sm text-center mx-4 border-emerald-500/10">
+            <div class="mb-10 text-6xl drop-shadow-2xl">🍏</div>
+            <h1 class="text-3xl font-black mb-1 tracking-tighter text-white">ORCHARD</h1>
+            <p class="text-slate-500 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">Intelligence OS</p>
+            <input type="password" id="pw" placeholder="ACCESS KEY" class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl mb-4 text-center text-white outline-none focus:border-emerald-500 transition-all font-bold">
+            <button onclick="checkPw()" class="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-500/20">UNSEAL</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="hidden opacity-0 transition-opacity duration-1000">
+        <aside class="fixed left-0 top-0 bottom-0 w-80 glass-dark border-r border-white/5 z-50 hidden lg:flex flex-col p-10">
+            <h2 class="text-emerald-400 font-extrabold text-3xl tracking-tighter mb-12 uppercase">Orchard<span class="text-slate-700 text-lg">.ai</span></h2>
+            <nav class="flex-1 space-y-3">
+                <button onclick="filterCat('all')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
+                    <span class="text-xl">📂</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">All Archives</span>
+                </button>
+                <button onclick="filterCat('Venture')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
+                    <span class="text-xl">💎</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">Ventures</span>
+                </button>
+                <button onclick="filterCat('Ops')" class="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition flex items-center gap-4 group">
+                    <span class="text-xl">🛠️</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">Operations</span>
+                </button>
+            </nav>
+            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v1.28 Mobile High-Gloss</div>
+        </aside>
+
+        <!-- Premium Bottom Toolbar -->
+        <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-sm glass-dark rounded-[2.5rem] border border-white/10 z-[200] lg:hidden flex justify-between p-2 shadow-2xl">
+            <button onclick="filterCat('all')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">📂</span></button>
+            <button onclick="filterCat('Venture')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">💎</span></button>
+            <button onclick="filterCat('Ops')" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">🛠️</span></button>
+            <button onclick="logout()" class="flex-1 py-5 flex flex-col items-center gap-1 group"><span class="text-2xl">🔒</span></button>
+        </nav>
+
+        <main class="lg:ml-80 p-8 lg:p-20 min-h-screen">
+            <header class="mb-16">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-1 h-8 bg-emerald-500 rounded-full"></div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500/50">Node Online</span>
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tighter mb-4 text-white">Neural <span class="text-emerald-400">OS</span>.</h1>
+                <p class="text-slate-400 text-lg lg:text-xl font-medium tracking-tight">Kimi 2.5 Active // Quota Errors Suppressed</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="file-grid"></div>
+        </main>
+    </div>
+
+    <!-- Reader View -->
+    <div id="reader-view" class="fixed inset-0 bg-[#020617] z-[600] hidden overflow-y-auto">
+        <div class="max-w-4xl mx-auto px-8 py-20 lg:py-32">
+            <button onclick="closeReader()" class="fixed top-8 left-8 glass p-5 rounded-2xl text-emerald-400 font-black text-xs z-[610] uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all">← Back</button>
+            <div id="reader-meta" class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500/30 mb-8 mt-12"></div>
+            <div id="reader-content" class="prose max-w-none"></div>
+        </div>
+    </div>
+
+    <script>
+        const library = [
+            // Content will be loaded dynamically or re-introduced later
+        ];
+
+        // RE-IMPLEMENTED Pull to Refresh
+        let ts;
+        document.addEventListener('touchstart', e => { ts = e.touches[0].pageY; });
+        document.addEventListener('touchmove', e => {
+            const tm = e.touches[0].pageY;
+            if (tm > ts && window.scrollY <= 0) {
+                document.body.classList.add('pulling');
+                if (tm - ts > 100) {
+                    document.body.classList.add('refreshing');
+                    location.reload();
+                }
+            }
+        }, {passive: true});
+        document.addEventListener('touchend', () => { document.body.classList.remove('pulling'); });
+
+        function checkPw() {
+            if(document.getElementById('pw').value === 'orchard2026') {
+                localStorage.setItem('orchard_auth', 'true');
+                showDash();
+            }
+        }
+        function showDash() {
+            document.getElementById('lock-screen').style.display = 'none';
+            const dash = document.getElementById('dashboard');
+            dash.classList.remove('hidden');
+            setTimeout(() => dash.classList.add('opacity-100'), 10);
+            renderGrid(library); // Call renderGrid with the (currently empty) library
+        }
+        function renderGrid(files) {
+            const grid = document.getElementById('file-grid');
+            if (files.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-600 text-lg mt-20">No content loaded yet.</div>';
+                return;
+            }
+            grid.innerHTML = files.map(file => `
+                <div onclick="openReader('${file.id}')" class="glass p-8 rounded-[3rem] hover:bg-white/5 cursor-pointer border border-white/5 hover:border-emerald-500/30 group transition-all">
+                    <div class="text-4xl mb-6">${file.icon}</div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500/50 mb-2 block">${file.category}</span>
+                    <h3 class="text-2xl font-black mb-3 text-white group-hover:text-emerald-400 transition-colors">${file.title}</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed font-medium">${file.summary}</p>
+                </div>
+            `).join('');
+        }
+        function openReader(id) {
+            const file = library.find(f => f.id === id);
+            // If content is empty (for dynamic loading), show placeholder
+            if (!file || !file.content || file.content.trim() === '') {
+                document.getElementById('reader-meta').innerText = `${file.category} // ${file.id.includes('polyvault') ? '2026-02-01' : file.date}`;
+                document.getElementById('reader-content').innerHTML = '<div class="text-red-400">Error: Content for this item is currently unavailable or empty.</div>';
+            } else {
+                document.getElementById('reader-meta').innerText = `${file.category} // ${file.id.includes('polyvault') ? '2026-02-01' : file.date}`;
+                document.getElementById('reader-content').innerHTML = marked.parse(file.content);
+            }
+            document.getElementById('reader-view').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            window.scrollTo(0,0);
+        }
+        function closeReader() {
+            document.getElementById('reader-view').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        function logout() {
+            localStorage.removeItem('orchard_auth');
+            location.reload();
+        }
+        if(localStorage.getItem('orchard_auth') === 'true') showDash();
+    </script>
+</body>
+</html>
