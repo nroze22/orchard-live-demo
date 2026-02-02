@@ -1,50 +1,24 @@
-import os
-import sys
-import json
-
-# Helper function to escape markdown content for JavaScript template literals
-def escape_for_js_template(text):
-    # Ensure the input is a string
-    if not isinstance(text, str):
-        text = str(text)
-    # Escape backticks (`` ` ``) and dollar signs ($) for JavaScript template literals
-    # Also escape newlines and double quotes for safety, if they are not already handled by JS template literals
-    # The goal is to make it safe to put into a JS `string` within HTML
-    return text.replace("\\`", "\\\\`").replace("`", "\\`").replace("$", "\\$")
-
-# 1. Read all necessary Markdown files into Python variables and escape them
-PASSIVE_MD = escape_for_js_template(open("orchard/harvest/passive_income_blueprint.md", "r").read() if os.path.exists("orchard/harvest/passive_income_blueprint.md") else "# Passive Income Engines\\n\\nNo data found for Passive Income Engines. Please re-run Kimi research.")
-GLOSS_PACK = escape_for_js_template(open("orchard/harvest/venture_pack_gloss.md", "r").read() if os.path.exists("orchard/harvest/venture_pack_gloss.md") else "# GLOSS Venture Pack\\n\\nNo data found for GLOSS Venture Pack. Please re-run GLOSS pipeline.")
-POLYVAULT_BLUEPRINT = escape_for_js_template(open("orchard/harvest/polyvault_blueprint.md", "r").read() if os.path.exists("orchard/harvest/polyvault_blueprint.md") else "# PolyVault Blueprint\\n\\nNo blueprint found. Please re-run Gemini architecture.")
-POLYVAULT_MAIN_CODE = escape_for_js_template(open("orchard/poly-engine/main.py", "r").read() if os.path.exists("orchard/poly-engine/main.py") else "# PolyVault Core Logic\\n\\nCode not found.")
-POLYMARKET_API_CODE = escape_for_js_template(open("orchard/poly-engine/polymarket_api.py", "r").read() if os.path.exists("orchard/poly-engine/polymarket_api.py") else "# Polymarket API Integration\\n\\nCode not found.")
-SENTIMENT_ANALYZER_CODE = escape_for_js_template(open("orchard/poly-engine/sentiment_analyzer.py", "r").read() if os.path.exists("orchard/poly-engine/sentiment_analyzer.py") else "# Sentiment Analyzer\\n\\nCode not found.")
-AURA_REPORT = escape_for_js_template(open("orchard/harvest/venture_brief_001.md", "r").read() if os.path.exists("orchard/harvest/venture_brief_001.md") else "# Aura: Exec Coach\\n\\nNo data found.")
-
-# 2. Construct the entire HTML content as a plain Python multi-line string
-#    Directly insert Python variables. All JavaScript/CSS curly braces are literal.
-html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Orchard OS | v1.31</title>
+    <title>Orchard OS | v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body {{ background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: contain; }}
-        .glass {{ background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }}
-        .glass-dark {{ background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }}
-        .prose h1 {{ color: #10b981; font-weight: 800; font-size: 2.25rem; margin-bottom: 1.5rem; }}
-        .prose h2 {{ color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; }}
-        .prose p {{ color: #cbd5e1; line-height: 1.8; margin-bottom: 1.25rem; }}
+        body { background: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: contain; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .prose h1 { color: #10b981; font-weight: 800; font-size: 2.25rem; margin-bottom: 1.5rem; }
+        .prose h2 { color: #34d399; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; }
+        .prose p { color: #cbd5e1; line-height: 1.8; margin-bottom: 1.25rem; }
         
         /* Fixed Pull to Refresh */
-        #ptr-box {{ height: 0; overflow: hidden; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #020617; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1000; }}
-        .pulling #ptr-box {{ height: 80px; }}
-        .refreshing #ptr-box {{ height: 80px; }}
+        #ptr-box { height: 0; overflow: hidden; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #020617; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1000; }
+        .pulling #ptr-box { height: 80px; }
+        .refreshing #ptr-box { height: 80px; }
     </style>
 </head>
 <body>
@@ -82,7 +56,7 @@ html_content = f"""
                     <span class="text-xl">🛠️</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">Operations</span>
                 </button>
             </nav>
-            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v1.31 High-Gloss</div>
+            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v2.0 Clean Slate</div>
         </aside>
 
         <!-- Premium Bottom Toolbar -->
@@ -117,16 +91,9 @@ html_content = f"""
 
     <script>
         const library = [
-            { 'id': 'polyvault_core', 'title': 'PolyVault: Core Logic', 'category': 'Ops', 'date': '2026-02-01', 'icon': '⚙️', 'summary': 'Python core trading logic with risk management.', 'content': `{{POLYVAULT_MAIN_CODE}}` },
-            { 'id': 'polyvault_api', 'title': 'PolyVault: API Integration', 'category': 'Ops', 'date': '2026-02-01', 'icon': '🔗', 'summary': 'Polymarket API for market data & simulated bets.', 'content': `{{POLYMARKET_API_CODE}}` },
-            { 'id': 'polyvault_sentiment', 'title': 'PolyVault: Sentiment Analysis', 'category': 'Ops', 'date': '2026-02-01', 'icon': '🧠', 'summary': 'Placeholder sentiment analysis module.', 'content': `{{SENTIMENT_ANALYZER_CODE}}` },
-            { 'id': 'polyvault_blueprint', 'title': 'PolyVault: Overall Blueprint', 'category': 'Venture', 'date': '2026-02-01', 'icon': '🤖', 'summary': 'The high-level architecture and safety protocols for PolyVault.', 'content': `{{POLYVAULT_BLUEPRINT}}` },
-            { 'id': 'passive', 'title': "Passive Income Engines", 'category': "Venture", 'date': "2026-02-01", 'icon': "💸", 'summary': "Autonomous systems for printing money: PolyVault, Local UX, and Marketplace Arb.", 'content': `{{PASSIVE_MD}}` },
-            { 'id': 'gloss', 'title': "GLOSS: Venture Pack", 'category': "Venture", 'date': "2026-02-01", 'icon': "✨", 'summary': "Deep market stats and GTM strategy for the AI Voice Coach.", 'content': `{{GLOSS_PACK}}` },
-            { 'id': 'aura', 'title': "Aura: Exec Coach", 'category': "Venture", 'date': "2026-01-31", 'icon': "💎", 'summary': "Gemini 3 powered body language and vocal coaching.", 'content': `{{AURA_REPORT}}` }
+            // Content will be carefully re-introduced in subsequent versions
         ];
 
-        // RE-IMPLEMENTED Pull to Refresh
         let ts;
         document.addEventListener('touchstart', e => { ts = e.touches[0].pageY; });
         document.addEventListener('touchmove', e => {
@@ -152,7 +119,7 @@ html_content = f"""
             const dash = document.getElementById('dashboard');
             dash.classList.remove('hidden');
             setTimeout(() => dash.classList.add('opacity-100'), 10);
-            renderGrid(library); // Call renderGrid with the (currently empty) library
+            renderGrid(library);
         }
         function renderGrid(files) {
             const grid = document.getElementById('file-grid');
@@ -171,7 +138,6 @@ html_content = f"""
         }
         function openReader(id) {
             const file = library.find(f => f.id === id);
-            // If content is empty (for dynamic loading), show placeholder
             if (!file || !file.content || file.content.trim() === '') {
                 document.getElementById('reader-meta').innerText = `${file.category} // ${file.id.includes('polyvault') ? '2026-02-01' : file.date}`;
                 document.getElementById('reader-content').innerHTML = '<div class="text-red-400">Error: Content for this item is currently unavailable or empty.</div>';
