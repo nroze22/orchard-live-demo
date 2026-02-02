@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Orchard OS | v1.28 - Minimal</title>
+    <title>Orchard OS | v1.30 - Debug</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -57,7 +57,7 @@
                     <span class="text-xl">🛠️</span> <span class="font-bold text-slate-300 group-hover:text-emerald-400 text-sm">Operations</span>
                 </button>
             </nav>
-            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v1.28 Mobile High-Gloss</div>
+            <div class="mt-auto pt-8 border-t border-white/5 text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">v1.30 Debug Mode</div>
         </aside>
 
         <!-- Premium Bottom Toolbar -->
@@ -91,8 +91,9 @@
     </div>
 
     <script>
+        // DEBUG: Hardcoded single entry with simple content
         const library = [
-            // Content will be loaded dynamically or re-introduced later
+            { id: 'test', title: "DEBUG: Test Content", category: "Debug", date: "2026-02-02", icon: "🐛", summary: "This is a test entry to diagnose content loading.", content: "# Hello World!\n\nThis is a plain text content for testing purposes.\n\n**Expected:** This text should render correctly when you click the card." }
         ];
 
         // RE-IMPLEMENTED Pull to Refresh
